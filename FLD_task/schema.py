@@ -1,12 +1,10 @@
 from enum import Enum
-from copy import deepcopy
-from typing import Dict, List, Any, Optional
-from typing import TypedDict
+from typing import List, Optional
 
 from pydantic import BaseModel
 
 
-class DeductionExample(BaseModel):
+class Deduction(BaseModel):
     hypothesis: str
     context: str
 
@@ -31,7 +29,7 @@ class DeductionExample(BaseModel):
     version: Optional[str] = None
 
 
-class SerializedDeductionStep(BaseModel):
+class SerializedDeduction(BaseModel):
     input: str
     next_step: Optional[str] = None
     gold_proofs: Optional[List[str]] = None

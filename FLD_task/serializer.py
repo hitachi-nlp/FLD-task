@@ -3,16 +3,16 @@ import re
 import random
 
 from FLD_task.proof import add_stance_markers, StanceMarker
-from FLD_task.schema import DeductionExample, SerializedDeductionStep
+from FLD_task.schema import Deduction, SerializedDeduction
 
 
 def serialize(
-    example: DeductionExample,
+    example: Deduction,
     stepwise=True,
     sample_negative_proof=False,
     newlines=False,
     proof_indicator=True,
-) -> SerializedDeductionStep:
+) -> SerializedDeduction:
     serial = _serialize(
         example,
         stepwise=stepwise,
@@ -28,7 +28,7 @@ def serialize(
     return serial
 
 
-def _serialize_gold(example: DeductionExample) -> str:
+def _serialize_gold(example: Deduction) -> str:
     if _get_stance_marker(example.proof_stance) == StanceMarker.UNKNOWN:
         return add_stance_markers('', [StanceMarker.UNKNOWN])
     else:
@@ -36,12 +36,12 @@ def _serialize_gold(example: DeductionExample) -> str:
 
 
 def _serialize(
-    example: DeductionExample,
+    example: Deduction,
     stepwise=True,
     sample_negative_proof=False,
     newlines=False,
     proof_indicator=True,
-) -> SerializedDeductionStep:
+) -> SerializedDeduction:
     """
 
     examples)
@@ -107,7 +107,7 @@ def _serialize(
         input_text = re.sub('sent([0-9]*)', r'\nsent\g<1>', input_text).lstrip('\n')
         next_step = re.sub(' *; *', ';\n', next_step)
 
-    serialized_example = SerializedDeductionStep(
+    serialized_example = SerializedDeduction(
         input=input_text,
         next_step=next_step,
     )

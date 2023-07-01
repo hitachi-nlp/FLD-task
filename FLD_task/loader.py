@@ -1,8 +1,8 @@
 from typing import Union, Optional
-from FLD_task.schema import DeductionExample
+from FLD_task.schema import Deduction
 
 
-def load(dic: dict, force_version: str = None) -> DeductionExample:
+def load_deduction(dic: dict, force_version: str = None) -> Deduction:
     if force_version is not None:
         version = force_version
     else:
@@ -46,12 +46,12 @@ def load(dic: dict, force_version: str = None) -> DeductionExample:
     elif version == '0.1':
         pass
 
-    elif version == 'DeductionExampleInstance':
+    elif version in ['DeductionInstance', 'DeductionExampleInstance']:
         pass
 
     else:
         raise ValueError()
 
-    dic['version'] = 'DeductionExampleInstance'
-    ex = DeductionExample.parse_obj(dic)
+    dic['version'] = 'DeductionInstance'
+    ex = Deduction.parse_obj(dic)
     return ex
