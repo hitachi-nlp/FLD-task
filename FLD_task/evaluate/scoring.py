@@ -4,7 +4,6 @@ from copy import deepcopy
 from typing import Set, Tuple, Dict, Callable, Optional, Any, List
 import logging
 
-import evaluate
 import nltk
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 import datasets
@@ -32,12 +31,31 @@ from FLD_task.proof.utils import (
 logger = logging.getLogger(__name__)
 
 _LEVENSTEIN = NormalizedLevenshtein()
-_BLEURT = datasets.load_metric('bleurt', 'bleurt-large-512')
 _ROUGE = rouge_scorer.RougeScorer(
     ['rouge1', 'rouge2', 'rouge3', 'rouge4', 'rougeL'],
     use_stemmer=True,
 )
-_HF_ROUGE_METRIC = evaluate.load("rouge")
+
+_BLEURT = None
+
+
+def _get_bleurt_metric():
+    global _BLEURT
+    if _BLEURT is None:
+        _BLEURT = datasets.load_metric('bleurt', 'bleurt-large-512')
+    return _BLEURT
+
+
+_HF_ROUGE_METRIC = None
+
+
+def _get_hf_rouge_metric():
+    global _HF_ROUGE_METRIC
+    if _HF_ROUGE_METRIC is None:
+        import evaluate
+        _HF_ROUGE_METRIC = evaluate.load("rouge")
+    return _HF_ROUGE_METRIC
+
 
 # We tuned the following threshold using "./tests/prover/test_scoring.py"
 LEVENSTEIN_SIMILARITY_THRESHOLD = 0.25
@@ -54,7 +72,7 @@ def calc_levenstein_similarity_batch(golds: List[str], preds: List[str]) -> List
 
 
 def calc_bleurt_similarity_batch(golds: List[str], preds: List[str]) -> List[float]:
-    return _BLEURT.compute(
+    return _get_bleurt_metric().compute(
         references=golds,
         predictions=preds,
     )['scores']
@@ -92,8 +110,9 @@ def _hf_rouge_postprocess_text(preds: List[str], labels: List[str]) -> Tuple[Lis
 
 def _hf_compute_rouges(decoded_labels: List[str], decoded_preds: List[str]) -> Dict[str, Any]:
     # Some simple post-processing
+
     _decoded_preds, _decoded_labels = _hf_rouge_postprocess_text(decoded_preds, decoded_labels)
-    result = _HF_ROUGE_METRIC.compute(predictions=_decoded_preds, references=_decoded_labels, use_stemmer=True)
+    result = _get_hf_rouge_metric().compute(predictions=_decoded_preds, references=_decoded_labels, use_stemmer=True)
     result = {k: round(v * 100, 4) for k, v in result.items()}
     return result
 
