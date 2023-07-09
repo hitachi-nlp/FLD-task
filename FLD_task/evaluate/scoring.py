@@ -564,22 +564,29 @@ def calc_F(gold_tot: int, TP: int, FP: int) -> Tuple[float, float, float]:
 def build_metrics(type_: str) -> Callable[[List[str], str], Dict[str, float]]:
     """ A thin wrapper to bind the settings"""
     if type_ == 'strict':
-        def calc(gold_proofs: List[str], pred_proof: str) -> Dict[str, float]:
+        def calc(gold_proofs: List[str],
+                 pred_proof: str,
+                 context: Optional[str] = None) -> Dict[str, float]:
             return calc_metrics(
                 gold_proofs,
                 pred_proof,
+                context=context,
                 similarity_threshold=False,
                 allowed_additional_proof_steps=0,
                 allow_any_proof_for_unknown=False,
             )
     elif type_ == 'allow_extra_steps':
-        def calc(gold_proofs: List[str], pred_proof: str) -> Dict[str, float]:
+        def calc(gold_proofs: List[str],
+                 pred_proof: str,
+                 context: Optional[str] = None) -> Dict[str, float]:
             return calc_metrics(
                 gold_proofs,
                 pred_proof,
+                context=context,
                 similarity_threshold=False,
                 allowed_additional_proof_steps=5,
                 allow_any_proof_for_unknown=True,
+                allow_reference_step=True,
             )
     else:
         raise ValueError(f'Unknown metrics type {type_}')
