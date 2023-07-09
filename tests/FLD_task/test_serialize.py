@@ -10,6 +10,7 @@ from FLD_task.serializer import (
     _get_lowest_int_no,
 )
 from FLD_task.schema import Deduction, SerializedDeduction
+from FLD_task import load_deduction
 
 
 def test_serialize_example():
@@ -67,13 +68,13 @@ def test_serialize_example():
     negative_proof = 'sent4 & sent5 -> int1: first negative conclusion; sent3 & int1 -> int2: second negative conclusion;'
 
     test_one_example(
-        Deduction.parse_obj({
+        load_deduction({
             'hypothesis': hypothesis,
             'context': context,
 
             'proofs': [proof],
-            'proof_stance': 'PROVED',
-            'answer': 'True',
+            'proof_stance': 'PROOF',
+            'answer': True,
 
             'negative_proofs': [negative_proof],
         }),
@@ -88,13 +89,13 @@ def test_serialize_example():
     )
 
     test_one_example(
-        Deduction.parse_obj({
+        load_deduction({
             'hypothesis': hypothesis,
             'context': context,
 
             'proofs': [proof],
-            'proof_stance': 'PROVED',
-            'answer': 'True',
+            'proof_stance': 'PROOF',
+            'answer': True,
 
             'negative_proofs': [negative_proof],
         }),
@@ -114,13 +115,13 @@ def test_serialize_example():
     )
 
     test_one_example(
-        Deduction.parse_obj({
+        load_deduction({
             'hypothesis': hypothesis,
             'context': context,
 
             'proofs': [proof],
-            'proof_stance': 'PROVED',
-            'answer': 'True',
+            'proof_stance': 'PROOF',
+            'answer': True,
 
             'negative_proofs': [negative_proof],
         }),
@@ -135,13 +136,13 @@ def test_serialize_example():
     )
 
     test_one_example(
-        Deduction.parse_obj({
+        load_deduction({
             'hypothesis': hypothesis,
             'context': context,
 
             'proofs': [proof],
-            'proof_stance': 'PROVED',
-            'answer': 'True',
+            'proof_stance': 'PROOF',
+            'answer': True,
 
             'negative_proofs': [negative_proof],
         }),

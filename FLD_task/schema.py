@@ -11,10 +11,10 @@ class Deduction(BaseModel):
     formula_context: Optional[str] = None
 
     proofs: Optional[List[str]] = None
-    proof_stance: Optional[str] = None
+    proof_label: Optional[str] = None
     formula_proofs: Optional[List[str]] = None
 
-    answer: Optional[str] = None
+    world_assump_label: Optional[str] = None
     original_tree_depth: Optional[int] = None
     depth: Optional[int] = None
     num_formula_distractors: Optional[int] = None
@@ -23,8 +23,8 @@ class Deduction(BaseModel):
 
     negative_hypothesis: Optional[str] = None
     negative_proofs: Optional[List[str]] = None
-    negative_proof_stance: Optional[str] = None
-    negative_answer: Optional[str] = None
+    negative_proof_label: Optional[str] = None
+    negative_world_assump_label: Optional[str] = None
 
     version: Optional[str] = None
 

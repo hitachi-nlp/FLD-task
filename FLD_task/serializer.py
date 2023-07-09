@@ -29,7 +29,7 @@ def serialize(
 
 
 def _serialize_gold(example: Deduction) -> str:
-    if _get_stance_marker(example.proof_stance) == StanceMarker.UNKNOWN:
+    if _get_stance_marker(example.world_assump_label) == StanceMarker.UNKNOWN:
         return add_stance_markers('', [StanceMarker.UNKNOWN])
     else:
         return _serialize(example, stepwise=False, sample_negative_proof=False, newlines=False, proof_indicator=True).next_step
@@ -90,7 +90,7 @@ def _serialize(
 
     if is_final_step:
         next_step = add_stance_markers(next_step,
-                                       [_get_stance_marker(example.proof_stance)])
+                                       [_get_stance_marker(example.world_assump_label)])
 
     input_text = ' ; '.join([
         f'$hypothesis$ = {example.hypothesis}',
