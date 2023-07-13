@@ -1,2 +1,2 @@
 # FLD Task
-A utility library for loading FLD datasets and computing metrics of them.
+A utility library for loading FLD datasets and computing metrics.

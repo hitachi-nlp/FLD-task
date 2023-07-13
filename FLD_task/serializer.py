@@ -231,4 +231,4 @@ def _get_stance_marker(example_proof_stance: str) -> StanceMarker:
     elif example_proof_stance == 'UNKNOWN':
         return StanceMarker.UNKNOWN
     else:
-        raise ValueError(f'Unknown stance label {example_proof_stance}')
+        raise ValueError(f'Unknown proof stance marker {example_proof_stance}')
