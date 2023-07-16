@@ -1,4 +1,4 @@
-from typing import Optional, List, Any, Set
+from typing import Optional, List, Any, Set, Tuple
 import re
 import random
 
@@ -13,35 +13,90 @@ def serialize(
     newlines=False,
     proof_indicator=True,
 ) -> SerializedDeduction:
-    serial = _serialize(
-        example,
+
+    proof = example.proofs[0] if len(example.proofs) > 0 else None
+    negative_proof = example.negative_proofs[0] if len(example.negative_proofs) > 0 else None
+
+    input_text, next_step = _serialize_input_nextstep(
+        example.hypothesis,
+        example.context,
+
+        proof=proof,
+        world_assump_label=example.world_assump_label,
+        negative_proof=negative_proof,
+
         stepwise=stepwise,
         sample_negative_proof=sample_negative_proof,
         newlines=newlines,
         proof_indicator=proof_indicator,
     )
 
-    serial.gold_proofs = [
-        _serialize_gold(example)
-    ]
+    serial = SerializedDeduction(
+        input=input_text,
+        next_step=next_step,
+    )
+
+    gold_proof = _serialize_gold(example.hypothesis, example.context, example.world_assump_label, proof=proof)
+    if gold_proof is not None:
+        serial.gold_proofs = [gold_proof]
 
     return serial
 
 
-def _serialize_gold(example: Deduction) -> str:
-    if _get_stance_marker(example.world_assump_label) == StanceMarker.UNKNOWN:
-        return add_stance_markers('', [StanceMarker.UNKNOWN])
-    else:
-        return _serialize(example, stepwise=False, sample_negative_proof=False, newlines=False, proof_indicator=True).next_step
+def _serialize_gold(hypothesis: str,
+                    context: str,
+                    world_assump_label: Optional[str] = None,
+                    proof: Optional[str] = None) -> str:
+    # if world_assump_label is not None and _get_stance_marker(world_assump_label) == StanceMarker.UNKNOWN:
+    #     return add_stance_markers('', [StanceMarker.UNKNOWN])
+    # else:
+    #     if proof is None:
+    #         raise ValueError()
+    #     else:
+    #         _, next_step = _serialize_input_nextstep(
+    #             hypothesis,
+    #             context,
+
+    #             proof=proof,
+    #             world_assump_label=world_assump_label,
+    #             negative_proof=None,
+
+    #             stepwise=False,
+    #             sample_negative_proof=False,
+    #             newlines=False,
+    #             proof_indicator=True
+    #         )
+    #         return next_step
+
+    _, next_step = _serialize_input_nextstep(
+        hypothesis,
+        context,
+
+        proof=proof,
+        world_assump_label=world_assump_label,
+        negative_proof=None,
+
+        stepwise=False,
+        sample_negative_proof=False,
+        newlines=False,
+        proof_indicator=True
+    )
+    return next_step
 
 
-def _serialize(
-    example: Deduction,
+def _serialize_input_nextstep(
+    hypothesis: str,
+    context: str,
+
+    proof: Optional[str] = None,
+    world_assump_label: Optional[str] = None,
+    negative_proof: Optional[str] = None,
+
     stepwise=True,
     sample_negative_proof=False,
     newlines=False,
     proof_indicator=True,
-) -> SerializedDeduction:
+) -> Tuple[str, str]:
     """
 
     examples)
@@ -49,18 +104,11 @@ def _serialize(
     context = 'sent1: this is sentence1 sent2: this is sentence2 sent3: this is sentence3'
     proof = 'sent1 & sent2 -> int1: the conclusion of sentence1 and sentence2; sent3 & int1 -> int2: the conclusion of int1 and sent3;'
     """
-    if len(example.proofs) == 0:
+    if proof is None:
         partial_proof = ''
         next_step = ''
         is_final_step = True
     else:
-        assert(len(example.proofs) == 1)
-        proof = example.proofs[0]
-
-        negative_proof: Optional[str] = None
-        if example.negative_proofs is not None and len(example.negative_proofs) > 0:
-            assert len(example.negative_proofs) == 1
-            negative_proof = example.negative_proofs[0]
 
         if stepwise:
             sampled_proof = _sample_subproof(proof, at_least_one_step=True)
@@ -88,13 +136,13 @@ def _serialize(
             next_step = spliced_proof
             is_final_step = True
 
-    if is_final_step:
+    if is_final_step and world_assump_label is not None:
         next_step = add_stance_markers(next_step,
-                                       [_get_stance_marker(example.world_assump_label)])
+                                       [_get_stance_marker(world_assump_label)])
 
     input_text = ' ; '.join([
-        f'$hypothesis$ = {example.hypothesis}',
-        f'$context$ = {example.context}',
+        f'$hypothesis$ = {hypothesis}',
+        f'$context$ = {context}',
     ])
     if proof_indicator:
         input_text = ' ; '.join([input_text, f'$proof$ = {partial_proof}'])
@@ -107,11 +155,7 @@ def _serialize(
         input_text = re.sub('sent([0-9]*)', r'\nsent\g<1>', input_text).lstrip('\n')
         next_step = re.sub(' *; *', ';\n', next_step)
 
-    serialized_example = SerializedDeduction(
-        input=input_text,
-        next_step=next_step,
-    )
-    return serialized_example
+    return input_text, next_step
 
 
 def _sample_subproof(proof: str, at_least_one_step=True) -> Optional[str]:
