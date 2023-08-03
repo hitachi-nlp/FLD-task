@@ -10,9 +10,9 @@ class Deduction(BaseModel):
 
     formula_context: Optional[str] = None
 
-    proofs: Optional[List[str]] = None
+    proofs: Optional[List[str]] = []
     proof_label: Optional[str] = None
-    formula_proofs: Optional[List[str]] = None
+    formula_proofs: Optional[List[str]] = []
 
     world_assump_label: Optional[str] = None
     original_tree_depth: Optional[int] = None
@@ -22,7 +22,7 @@ class Deduction(BaseModel):
     num_all_distractors: Optional[int] = None
 
     negative_hypothesis: Optional[str] = None
-    negative_proofs: Optional[List[str]] = None
+    negative_proofs: Optional[List[str]] = []
     negative_proof_label: Optional[str] = None
     negative_world_assump_label: Optional[str] = None
 
@@ -32,7 +32,7 @@ class Deduction(BaseModel):
 class SerializedDeduction(BaseModel):
     input: str
     next_step: Optional[str] = None
-    gold_proofs: Optional[List[str]] = None
+    gold_proofs: Optional[List[str]] = []
 
 
 class AnswerLabel(Enum):

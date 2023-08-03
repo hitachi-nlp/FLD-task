@@ -25,7 +25,8 @@ def load_deduction(dic: dict, force_version: str = None) -> Deduction:
             else:
                 raise ValueError(f'Unknown answer {ans}')
 
-        dic['world_assump_label'] = convert_answer(dic['answer'])
+        if dic.get('answer', None) is not None:
+            dic['world_assump_label'] = convert_answer(dic['answer'])
         if dic.get('negative_answer', None) is not None:
             dic['negative_world_assump_label'] = convert_answer(dic['negative_answer'])
 
@@ -39,15 +40,16 @@ def load_deduction(dic: dict, force_version: str = None) -> Deduction:
             else:
                 raise ValueError(f'Unknown stance {stance}')
 
-        dic['proof_label'] = convert_stance(dic['proof_stance'])
+        if dic.get('proof_stance', None) is not None:
+            dic['proof_label'] = convert_stance(dic['proof_stance'])
         if dic.get('negative_proof_stance', None) is not None:
             dic['negative_proof_label'] = convert_stance(dic['negative_proof_stance'])
 
     elif version == '0.1':
-        dic['world_assump_label'] = dic['answer']
+        dic['world_assump_label'] = dic.get('answer', None)
         dic['negative_world_assump_label'] = dic.get('negative_answer', None)
 
-        dic['proof_label'] = dic['proof_stance']
+        dic['proof_label'] = dic.get('proof_stance', None)
         dic['negative_proof_label'] = dic.get('negative_proof_stance', None)
 
     elif version == '0.2':
@@ -60,5 +62,5 @@ def load_deduction(dic: dict, force_version: str = None) -> Deduction:
         raise ValueError()
 
     dic['version'] = 'DeductionInstance'
-    ex = Deduction.parse_obj(dic)
+    ex = Deduction.parse_obj({key: val for key, val in dic.items() if val is not None})
     return ex
