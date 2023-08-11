@@ -31,6 +31,8 @@ def normalize_proof(proof_text: str) -> str:
 
 
 def prettify_proof_text(proof_text: str, indent=0) -> str:
+    proof_text_org = proof_text
+
     proof_text = normalize_proof(proof_text)
     stance_markers = get_stance_markers(proof_text)
     proof_text = delete_stance_markers(proof_text)
@@ -44,12 +46,12 @@ def prettify_proof_text(proof_text: str, indent=0) -> str:
     for line in proof_lines:
         if line.find(' -> ') < 0:
             logger.info('Could not prettify the proof since the following line have no " -> ": "%s"', line)
-            return proof_text
+            return proof_text_org
 
         implication_fields = line.split(' -> ')
         if len(implication_fields) > 2:
             logger.info('Could not prettify the proof since the following line have more than two " -> ": "%s"', line)
-            return proof_text
+            return proof_text_org
 
         premises_text, concl_text = line.split(' -> ')
 
@@ -63,7 +65,7 @@ def prettify_proof_text(proof_text: str, indent=0) -> str:
             concl_fields = concl_text.split(': ')
             if len(concl_fields) > 2:
                 logger.info('Could not prettify the proof since the following line have more than two ": ": "%s"', line)
-                return proof_text
+                return proof_text_org
             concl_sent_id, concl_sentence = concl_fields
             pretty_concl_text = f'{concl_sent_id:>10}:       {concl_sentence}'
         else:
