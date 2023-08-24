@@ -8,11 +8,12 @@ class Deduction(BaseModel):
     hypothesis: str
     context: str
 
-    formula_context: Optional[str] = None
+    hypothesis_formula: Optional[str] = None
+    context_formula: Optional[str] = None
 
     proofs: Optional[List[str]] = []
     proof_label: Optional[str] = None
-    formula_proofs: Optional[List[str]] = []
+    proofs_formula: Optional[List[str]] = []
 
     world_assump_label: Optional[str] = None
     original_tree_depth: Optional[int] = None
@@ -22,6 +23,8 @@ class Deduction(BaseModel):
     num_all_distractors: Optional[int] = None
 
     negative_hypothesis: Optional[str] = None
+    negative_hypothesis_formula: Optional[str] = None
+    negative_original_tree_depth: Optional[int] = None
     negative_proofs: Optional[List[str]] = []
     negative_proof_label: Optional[str] = None
     negative_world_assump_label: Optional[str] = None
