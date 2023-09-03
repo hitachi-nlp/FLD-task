@@ -117,6 +117,11 @@ def _hf_compute_rouges(decoded_labels: List[str], decoded_preds: List[str]) -> D
     return result
 
 
+def _raise_no_marker(text: str) -> None:
+    if len(get_stance_markers(text)) == 0:
+        raise ValueError('The text do not have marker: "%s"', text)
+
+
 def calc_metrics(proof_gold_texts: List[str],
                  proof_pred_text: str,
                  allow_reference_step=False,
@@ -127,6 +132,9 @@ def calc_metrics(proof_gold_texts: List[str],
                  zero_one: bool = True) -> Dict[str, Any]:
     if len(proof_gold_texts) >= 2:
         raise NotImplementedError()
+    for proof_gold_text in proof_gold_texts:
+        _raise_no_marker(proof_gold_text)
+
     proof_gold_text = normalize_proof(proof_gold_texts[0])
     proof_pred_text = normalize_proof(proof_pred_text)
 
@@ -163,6 +171,8 @@ def calc_accuracy(proof_gold_text: str,
                   allowed_additional_proof_steps=0,
                   allow_any_proof_for_unknown=False,
                   zero_one: bool = True) -> float:
+    _raise_no_marker(proof_gold_text)
+
     proof_gold_text = normalize_proof(proof_gold_text)
     proof_pred_text = normalize_proof(proof_pred_text)
 
