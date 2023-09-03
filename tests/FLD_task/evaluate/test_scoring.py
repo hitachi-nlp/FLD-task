@@ -1,8 +1,8 @@
 import math
 import re
+import logging
 
 from FLD_task.evaluate.scoring import calc_score, calc_F
-from logger_setup import setup as setup_logger
 
 
 def _calc_score(gold: str, pred: str, *args, **kwargs) -> float:
@@ -620,8 +620,6 @@ def _check_limitation():
 
 
 if __name__ == '__main__':
-    setup_logger()
-
     test_calc_score_on_toy_examples()
     test_calc_score_on_real_examples()
     # _check_limitation()

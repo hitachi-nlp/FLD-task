@@ -33,9 +33,11 @@ class Deduction(BaseModel):
 
 
 class SerializedDeduction(BaseModel):
-    input: str
-    next_step: Optional[str] = None
-    gold_proofs: Optional[List[str]] = []
+    prompt: str
+    proofs: Optional[List[str]] = []
+
+    partial_proof: Optional[str] = None
+    next_proof_step: Optional[str] = None
 
 
 class AnswerLabel(Enum):
