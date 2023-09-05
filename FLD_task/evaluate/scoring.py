@@ -312,7 +312,7 @@ def _get_aligned_proof_by_uids(proof_gold_text: str,
             concl_sent = pred_premise_ids_to_concl_sent[premise_ids]
             if len(premise_ids) == 1:
                 premise_id = premise_ids[0]
-                if premise_id.startswith(SENT_IDENT):
+                if premise_id.startswith(SENT_IDENT) and premise_id in context_sents:
                     premise_sent = context_sents[premise_id]
                     if is_reference(premise_sent, concl_sent):
                         reference_sent_id_to_int_id[premise_id] = concl_id
