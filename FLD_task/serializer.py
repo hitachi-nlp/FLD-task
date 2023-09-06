@@ -49,27 +49,6 @@ def _serialize_gold(hypothesis: str,
                     context: str,
                     world_assump_label: Optional[str] = None,
                     proof: Optional[str] = None) -> str:
-    # if world_assump_label is not None and _get_stance_marker(world_assump_label) == StanceMarker.UNKNOWN:
-    #     return add_stance_markers('', [StanceMarker.UNKNOWN])
-    # else:
-    #     if proof is None:
-    #         raise ValueError()
-    #     else:
-    #         _, next_step = _serialize_input_nextstep(
-    #             hypothesis,
-    #             context,
-
-    #             proof=proof,
-    #             world_assump_label=world_assump_label,
-    #             negative_proof=None,
-
-    #             stepwise=False,
-    #             sample_negative_proof=False,
-    #             newlines=False,
-    #             proof_indicator=True
-    #         )
-    #         return next_step
-
     _, partial_proof, next_step = _serialize_input_nextstep(
         hypothesis,
         context,
@@ -142,8 +121,12 @@ def _serialize_input_nextstep(
             is_final_step = True
 
     if is_final_step and world_assump_label is not None:
-        next_step = add_stance_markers(next_step,
-                                       [_get_stance_marker(world_assump_label)])
+        if next_step is None:
+            next_step = add_stance_markers('',
+                                           [_get_stance_marker(world_assump_label)])
+        else:
+            next_step = add_stance_markers(next_step,
+                                           [_get_stance_marker(world_assump_label)])
 
     prompt = ' ; '.join([
         f'$hypothesis$ = {hypothesis}',
