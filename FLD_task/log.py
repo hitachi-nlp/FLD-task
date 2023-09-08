@@ -11,6 +11,8 @@ def log_example(context: Optional[str] = None,
                 metrics: Optional[Dict[str, Any]] = None,
                 logger=None):
     gold_proofs = gold_proofs or []
+    log_info_lines: List[str] = []
+    log_warn_lines: List[str] = []
 
     if logger is not None:
         def log(msg: str, level='info') -> None:
@@ -28,33 +30,43 @@ def log_example(context: Optional[str] = None,
                 print('[!]', msg)
             else:
                 raise ValueError()
-    log('\n\n\n=========================================== example ===========================================')
+
+    log_info_lines.append('\n\n\n=========================================== example ===========================================')
 
     if context is not None:
-        log('\n-------------- context        ----------------')
+        log_info_lines.append('\n-------------- context        ----------------')
         try:
-            log(prettify_context_text(context))
+            log_info_lines.append(prettify_context_text(context))
         except Exception as e:
-            log('could not prettify context due to the following error:' + '\n' + str(e), level='warning')
-            log(context)
+            log_warn_lines.append('[!] could not prettify the above context due to the following error:' + '\n' + str(e))
+            log_info_lines.append(context)
 
     if hypothesis is not None:
-        log('\n-------------- hypothesis     ----------------')
-        log(hypothesis)
+        log_info_lines.append('\n-------------- hypothesis     ----------------')
+        log_info_lines.append(hypothesis)
 
     if len(gold_proofs) > 0:
         for gold_proof in gold_proofs:
-            log('\n-------------- gold proof     ----------------')
+            log_info_lines.append('\n-------------- gold proof     ----------------')
             try:
-                log(prettify_proof_text(gold_proof))
+                log_info_lines.append(prettify_proof_text(gold_proof))
             except Exception as e:
-                log('could not prettify context due to the following error:' + str(e), level='warning')
-                log(gold_proof)
+                log_info_lines.append('[!] could not prettify the gold proof due to the following error:' + str(e))
+                log_info_lines.append(gold_proof)
 
     if pred_proof is not None:
-        log('\n-------------- pred proof     ----------------')
-        log(pred_proof)
+        log_info_lines.append('\n-------------- pred proof     ----------------')
+        try:
+            log_info_lines.append(prettify_proof_text(pred_proof))
+        except Exception as e:
+            log_info_lines.append('[!] could not prettify the pred proof due to the following error:' + str(e))
+            log_info_lines.append(pred_proof)
 
     if metrics is not None:
-        log('\n-------------- metrics        ----------------')
-        log(pformat(metrics))
+        log_info_lines.append('\n-------------- metrics        ----------------')
+        log_info_lines.append(pformat(metrics))
+
+    if len(log_info_lines) > 0:
+        log('\n'.join(log_info_lines))
+    if len(log_warn_lines) > 0:
+        log('\n'.join(log_warn_lines), level='warning')
