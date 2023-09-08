@@ -17,7 +17,7 @@ def serialize(
     proof = example.proofs[0] if len(example.proofs) > 0 else None
     negative_proof = example.negative_proofs[0] if len(example.negative_proofs) > 0 else None
 
-    input_text, next_step = _serialize_input_nextstep(
+    prompt, partial_proof, next_proof_step = _serialize_input_nextstep(
         example.hypothesis,
         example.context,
 
@@ -32,13 +32,15 @@ def serialize(
     )
 
     serial = SerializedDeduction(
-        input=input_text,
-        next_step=next_step,
+        prompt=prompt,
+
+        partial_proof=partial_proof,
+        next_proof_step=next_proof_step,
     )
 
-    gold_proof = _serialize_gold(example.hypothesis, example.context, example.world_assump_label, proof=proof)
-    if gold_proof is not None:
-        serial.gold_proofs = [gold_proof]
+    serialized_proof = _serialize_gold(example.hypothesis, example.context, example.world_assump_label, proof=proof)
+    if serialized_proof is not None:
+        serial.proofs = [serialized_proof]
 
     return serial
 
@@ -47,28 +49,7 @@ def _serialize_gold(hypothesis: str,
                     context: str,
                     world_assump_label: Optional[str] = None,
                     proof: Optional[str] = None) -> str:
-    # if world_assump_label is not None and _get_stance_marker(world_assump_label) == StanceMarker.UNKNOWN:
-    #     return add_stance_markers('', [StanceMarker.UNKNOWN])
-    # else:
-    #     if proof is None:
-    #         raise ValueError()
-    #     else:
-    #         _, next_step = _serialize_input_nextstep(
-    #             hypothesis,
-    #             context,
-
-    #             proof=proof,
-    #             world_assump_label=world_assump_label,
-    #             negative_proof=None,
-
-    #             stepwise=False,
-    #             sample_negative_proof=False,
-    #             newlines=False,
-    #             proof_indicator=True
-    #         )
-    #         return next_step
-
-    _, next_step = _serialize_input_nextstep(
+    _, partial_proof, next_step = _serialize_input_nextstep(
         hypothesis,
         context,
 
@@ -96,7 +77,7 @@ def _serialize_input_nextstep(
     sample_negative_proof=False,
     newlines=False,
     proof_indicator=True,
-) -> Tuple[str, str]:
+) -> Tuple[str, str, str]:
     """
 
     examples)
@@ -105,8 +86,8 @@ def _serialize_input_nextstep(
     proof = 'sent1 & sent2 -> int1: the conclusion of sentence1 and sentence2; sent3 & int1 -> int2: the conclusion of int1 and sent3;'
     """
     if proof is None:
-        partial_proof = ''
-        next_step = ''
+        partial_proof = None
+        next_step = None
         is_final_step = True
     else:
 
@@ -125,37 +106,49 @@ def _serialize_input_nextstep(
 
             steps = _split_into_steps(spliced_proof)
             partial_proof_steps, next_step = steps[:-1], steps[-1]
-            partial_proof = _merge_steps(partial_proof_steps)
+            if len(partial_proof_steps) == 0:
+                partial_proof = None
+            else:
+                partial_proof = _merge_steps(partial_proof_steps)
         else:
             if sample_negative_proof and negative_proof is not None:
                 spliced_proof = _splice_negative_proof(proof, negative_proof, negative_then_positive=True)
             else:
                 spliced_proof = proof
 
-            partial_proof = ''
+            partial_proof = None
             next_step = spliced_proof
             is_final_step = True
 
     if is_final_step and world_assump_label is not None:
-        next_step = add_stance_markers(next_step,
-                                       [_get_stance_marker(world_assump_label)])
+        if next_step is None:
+            next_step = add_stance_markers('',
+                                           [_get_stance_marker(world_assump_label)])
+        else:
+            next_step = add_stance_markers(next_step,
+                                           [_get_stance_marker(world_assump_label)])
 
-    input_text = ' ; '.join([
+    prompt = ' ; '.join([
         f'$hypothesis$ = {hypothesis}',
         f'$context$ = {context}',
     ])
     if proof_indicator:
-        input_text = ' ; '.join([input_text, f'$proof$ = {partial_proof}'])
+        prompt = ' ; '.join([prompt, '$proof$ = '])
     else:
         if stepwise:
             raise ValueError('Can not add partial proof because proof_indicator=False is specified')
 
     if newlines:
-        input_text = re.sub(' *; *', ';\n', input_text)
-        input_text = re.sub('sent([0-9]*)', r'\nsent\g<1>', input_text).lstrip('\n')
+        prompt = re.sub(' *; *', ';\n', prompt)
+        prompt = re.sub('sent([0-9]*)', r'\nsent\g<1>', prompt).lstrip('\n')
+
+        if partial_proof is not None:
+            partial_proof = re.sub(' *; *', ';\n', partial_proof)
+            partial_proof = re.sub('sent([0-9]*)', r'\nsent\g<1>', partial_proof).lstrip('\n')
+
         next_step = re.sub(' *; *', ';\n', next_step)
 
-    return input_text, next_step
+    return prompt, partial_proof, next_step
 
 
 def _sample_subproof(proof: str, at_least_one_step=True) -> Optional[str]:
@@ -222,6 +215,8 @@ def _split_into_steps(proof: str) -> List[str]:
 
 
 def _merge_steps(steps: List[str]) -> str:
+    if len(steps) == 0:
+        raise ValueError()
     return ' '.join(steps)
 
 
