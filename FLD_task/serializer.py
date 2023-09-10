@@ -4,6 +4,7 @@ import random
 
 from FLD_task.proof import add_stance_markers, StanceMarker
 from FLD_task.schema import Deduction, SerializedDeduction
+from FLD_task.proof.utils import HYPOTHESIS_IDENT
 
 
 def serialize(
@@ -90,6 +91,8 @@ def _serialize_input_nextstep(
     context = 'sent1: this is sentence1 sent2: this is sentence2 sent3: this is sentence3'
     proof = 'sent1 & sent2 -> int1: the conclusion of sentence1 and sentence2; sent3 & int1 -> int2: the conclusion of int1 and sent3;'
     """
+    negative_proof = _strip_final_hypothesis_step(negative_proof) if negative_proof is not None else None
+
     if proof is None:
         partial_proof = None
         next_step = None
@@ -223,6 +226,16 @@ def _merge_steps(steps: List[str]) -> str:
     if len(steps) == 0:
         raise ValueError()
     return ' '.join(steps)
+
+
+def _strip_final_hypothesis_step(proof: str) -> Optional[str]:
+    steps = _split_into_steps(proof)
+    if steps[-1].find(HYPOTHESIS_IDENT) >= 0:
+        steps = steps[:-1]
+    if len(steps) > 0:
+        return _merge_steps(steps)
+    else:
+        return None
 
 
 def _rename_ints_with_offset(proof: str, offset: int) -> str:
