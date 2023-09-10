@@ -233,7 +233,11 @@ def extract_assumptions(proof_text: str, no_lower=True) -> OrderedDict[str, str]
     for m_begin in re.finditer(r'-> *assump\d+', proof_text):
         begin = m_begin.span()[0]
         assump_text = re.sub(r' *-> *', '', proof_text[begin:].split(';')[0])
-        ident, sent = re.split(r':  *', assump_text)
+        try:
+            ident, sent = re.split(r':  *', assump_text)
+        except:
+            print(proof_text)
+            raise
         assumptions[ident.strip()] = normalize_sentence(sent, no_lower=no_lower)
     return assumptions
 

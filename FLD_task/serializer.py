@@ -11,10 +11,15 @@ def serialize(
     stepwise=True,
     sample_negative_proof=False,
     newlines=False,
+    include_max_subproof_for_unknown=True,
     proof_indicator=True,
 ) -> SerializedDeduction:
 
-    proof = example.proofs[0] if len(example.proofs) > 0 else None
+    if not include_max_subproof_for_unknown and _get_stance_marker(example.world_assump_label) == StanceMarker.UNKNOWN:
+        proof = None
+    else:
+        proof = example.proofs[0] if len(example.proofs) > 0 else None
+
     negative_proof = example.negative_proofs[0] if len(example.negative_proofs) > 0 else None
 
     prompt, partial_proof, next_proof_step = _serialize_input_nextstep(

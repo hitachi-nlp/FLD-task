@@ -1,4 +1,4 @@
-from typing import Union, Optional
+from typing import Union, Optional, Callable, Any
 from FLD_task.schema import Deduction
 
 
@@ -13,44 +13,49 @@ def load_deduction(dic: dict, force_version: str = None) -> Deduction:
         #     raise ValueError(f'the forced version {force_version} does not match the found version {version}')
         version = version or '0.0'
 
-    if version == '0.0':
+    if version in ['0.0', '0.1']:
 
-        def convert_answer(ans: Union[bool, str]) -> str:
-            if ans is True:
-                return 'PROVED'
-            elif ans is False:
-                return 'DISPROVED'
-            elif ans == 'Unknown':
-                return 'UNKNOWN'
-            else:
-                raise ValueError(f'Unknown answer {ans}')
+        def map_to_new_field(old_name: str,
+                             new_name: str,
+                             convert_func: Optional[[[Any], str]] = None):
+            if old_name in dic:
+                old_val = dic.pop(old_name, None)
+                if old_val is not None:
+                    old_val_conv = convert_func(old_val) if convert_func is not None else old_val
+                    if new_name in dic and dic[new_name] != old_val_conv:
+                        raise ValueError('inconsistent')
+                    dic[new_name] = old_val_conv
 
-        if dic.get('answer', None) is not None:
-            dic['world_assump_label'] = convert_answer(dic['answer'])
-        if dic.get('negative_answer', None) is not None:
-            dic['negative_world_assump_label'] = convert_answer(dic['negative_answer'])
+        if version == '0.0':
 
-        def convert_stance(stance: str) -> str:
-            if stance == 'PROOF':
-                return 'PROVED'
-            elif stance == 'DISPROOF':
-                return 'DISPROVED'
-            elif stance == 'UNKNOWN':
-                return 'UNKNOWN'
-            else:
-                raise ValueError(f'Unknown stance {stance}')
+            def convert_answer(ans: Union[bool, str]) -> str:
+                if ans is True:
+                    return 'PROVED'
+                elif ans is False:
+                    return 'DISPROVED'
+                elif ans == 'Unknown':
+                    return 'UNKNOWN'
+                else:
+                    raise ValueError(f'Unknown answer {ans}')
 
-        if dic.get('proof_stance', None) is not None:
-            dic['proof_label'] = convert_stance(dic['proof_stance'])
-        if dic.get('negative_proof_stance', None) is not None:
-            dic['negative_proof_label'] = convert_stance(dic['negative_proof_stance'])
+            def convert_stance(stance: str) -> str:
+                if stance == 'PROOF':
+                    return 'PROVED'
+                elif stance == 'DISPROOF':
+                    return 'DISPROVED'
+                elif stance == 'UNKNOWN':
+                    return 'UNKNOWN'
+                else:
+                    raise ValueError(f'Unknown stance {stance}')
+        else:
+            convert_answer = None
+            convert_stance = None
 
-    elif version == '0.1':
-        dic['world_assump_label'] = dic.get('answer', None)
-        dic['negative_world_assump_label'] = dic.get('negative_answer', None)
+        map_to_new_field('answer', 'world_assump_label', convert_func=convert_answer)
+        map_to_new_field('negative_answer', 'negative_world_assump_label', convert_func=convert_answer)
 
-        dic['proof_label'] = dic.get('proof_stance', None)
-        dic['negative_proof_label'] = dic.get('negative_proof_stance', None)
+        map_to_new_field('proof_stance', 'proof_label', convert_func=convert_stance)
+        map_to_new_field('negative_proof_stance', 'negative_proof_label', convert_func=convert_stance)
 
     elif version == '0.2':
         pass
@@ -62,5 +67,13 @@ def load_deduction(dic: dict, force_version: str = None) -> Deduction:
         raise ValueError()
 
     dic['version'] = 'DeductionInstance'
-    ex = Deduction.parse_obj({key: val for key, val in dic.items() if val is not None})
-    return ex
+    init_kwargs = {key: val for key, val in dic.items() if val is not None}
+
+    # We could check the unnecessary fields,
+    # but it could be useful if we ignore such fields when we are loading examples from 
+    # modified jsons or something.
+    # for key in init_kwargs:
+    #     if key not in Deduction.schema()['properties']:
+    #         raise Exception(f'key={key} not allowed for Deduction object')
+
+    return Deduction.parse_obj(init_kwargs)

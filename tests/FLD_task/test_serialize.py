@@ -32,7 +32,8 @@ def test_serialize_example():
         def get_matched_gold(serialized_example: SerializedDeduction) -> Optional[SerializedDeduction]:
             for gold_example in gold_examples:
                 if serialized_example.prompt == gold_example.prompt\
-                        and serialized_example.partial_proof == gold_example.partial_proof:
+                        and serialized_example.partial_proof == gold_example.partial_proof\
+                        and serialized_example.next_proof_step == gold_example.next_proof_step:
                     return gold_example
             return None
 
@@ -62,19 +63,21 @@ def test_serialize_example():
                 pprint(generated_gold.dict())
             assert False
 
+    def _load_deduction(*args, **kwargs) -> Deduction:
+        return load_deduction(*args, **kwargs, force_version='DeductionInstance')
+
     hypothesis = 'this is the hypothesis'
     context = 'sent1: this is sentence1 sent2: this is sentence2 sent3: this is sentence3 sent4: this is sentence4 sent5: this is sentence5'
     proof = 'sent1 & sent2 -> int1: first conclusion; sent3 & int1 -> int2: second conclusion;'
     negative_proof = 'sent4 & sent5 -> int1: first negative conclusion; sent3 & int1 -> int2: second negative conclusion;'
 
     test_one_example(
-        load_deduction({
+        _load_deduction({
             'hypothesis': hypothesis,
             'context': context,
 
             'proofs': [proof],
-            'proof_stance': 'PROOF',
-            'answer': True,
+            'world_assump_label': 'PROVED',
 
             'negative_proofs': [negative_proof],
         }),
@@ -90,13 +93,12 @@ def test_serialize_example():
     )
 
     test_one_example(
-        load_deduction({
+        _load_deduction({
             'hypothesis': hypothesis,
             'context': context,
 
             'proofs': [proof],
-            'proof_stance': 'PROOF',
-            'answer': True,
+            'world_assump_label': 'PROVED',
 
             'negative_proofs': [negative_proof],
         }),
@@ -118,13 +120,12 @@ def test_serialize_example():
     )
 
     test_one_example(
-        load_deduction({
+        _load_deduction({
             'hypothesis': hypothesis,
             'context': context,
 
             'proofs': [proof],
-            'proof_stance': 'PROOF',
-            'answer': True,
+            'world_assump_label': 'PROVED',
 
             'negative_proofs': [negative_proof],
         }),
@@ -140,13 +141,12 @@ def test_serialize_example():
     )
 
     test_one_example(
-        load_deduction({
+        _load_deduction({
             'hypothesis': hypothesis,
             'context': context,
 
             'proofs': [proof],
-            'proof_stance': 'PROOF',
-            'answer': True,
+            'world_assump_label': 'PROVED',
 
             'negative_proofs': [negative_proof],
         }),
@@ -257,6 +257,28 @@ def test_serialize_example():
 
         stepwise=True,
         sample_negative_proof=True,
+    )
+
+    test_one_example(
+        _load_deduction({
+            'hypothesis': hypothesis,
+            'context': context,
+
+            'proofs': [proof],
+            'world_assump_label': 'UNKNOWN',
+
+            'negative_proofs': [negative_proof],
+        }),
+        [
+            SerializedDeduction.parse_obj({
+                'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
+                'partial_proof': None,
+                'next_proof_step': '__UNKNOWN__',
+            }),
+        ],
+        stepwise=False,
+        sample_negative_proof=False,
+        include_max_subproof_for_unknown=False,
     )
 
 
