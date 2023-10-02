@@ -1,18 +1,18 @@
 from typing import List
-from FLD_task.evaluate.scoring import (
-    calc_levenstein_similarity_batch,
-    calc_rouge_batch,
-    calc_bleurt_similarity_batch,
+from FLD_task.evaluation import (
+    _leven_sim_batch,
+    _rouge_batch,
+    # _bleurt_sim_batch,
     LEVENSTEIN_SIMILARITY_THRESHOLD,
     ROUGE_THRESHOLD,
-    BLEURT_SIMILARITY_THRESHOLD,
+    # BLEURT_SIMILARITY_THRESHOLD,
 )
 
 
 similarities = {
-    calc_levenstein_similarity_batch: LEVENSTEIN_SIMILARITY_THRESHOLD,
-    calc_rouge_batch: ROUGE_THRESHOLD,
-    # calc_bleurt_similarity_batch: BLEURT_SIMILARITY_THRESHOLD,
+    _leven_sim_batch: LEVENSTEIN_SIMILARITY_THRESHOLD,
+    _rouge_batch: ROUGE_THRESHOLD,
+    # _bleurt_sim_batch: BLEURT_SIMILARITY_THRESHOLD,
 }
 
 

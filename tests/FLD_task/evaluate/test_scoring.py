@@ -2,11 +2,11 @@ import math
 import re
 import logging
 
-from FLD_task.evaluate.scoring import calc_score, calc_F
+from FLD_task.evaluation import _compute_proof_score, _F_score
 
 
 def _calc_score(gold: str, pred: str, *args, **kwargs) -> float:
-    return calc_score(
+    return _compute_proof_score(
         re.sub('  *', ' ', gold),
         re.sub('  *', ' ', pred),
         *args,
@@ -133,7 +133,7 @@ def test_calc_score_on_toy_examples():
 
         zero_one=False,
     )
-    assert (math.isclose(score, calc_F(5, 5, 2)[-1]))
+    assert (math.isclose(score, _F_score(5, 5, 2)[-1]))
 
     # prediction lacks steps + zero_one=False
     score = _calc_score(
@@ -154,7 +154,7 @@ def test_calc_score_on_toy_examples():
 
         zero_one=False,
     )
-    assert (math.isclose(score, calc_F(5, 3, 0)[-1]))
+    assert (math.isclose(score, _F_score(5, 3, 0)[-1]))
 
     # prediction is perfect
     score = _calc_score(
@@ -431,7 +431,7 @@ def test_calc_score_on_toy_examples():
 
         zero_one=False,
     )
-    assert (math.isclose(score, calc_F(9, 7, 2)[-1]))
+    assert (math.isclose(score, _F_score(9, 7, 2)[-1]))
 
     score = _calc_score(
         '; '.join([

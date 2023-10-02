@@ -46,7 +46,7 @@ def serialize(
 
     serialized_proof = _serialize_gold(example.hypothesis, example.context, example.world_assump_label, proof=proof)
     if serialized_proof is not None:
-        serial.proofs = [serialized_proof]
+        serial.proof = serialized_proof
 
     return serial
 

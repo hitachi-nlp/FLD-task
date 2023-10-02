@@ -6,7 +6,7 @@ import logging
 
 import nltk
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
-import datasets
+# import datasets
 from rouge_score import rouge_scorer
 from FLD_task.proof import (
     delete_stance_markers,
@@ -36,14 +36,14 @@ _ROUGE = rouge_scorer.RougeScorer(
     use_stemmer=True,
 )
 
-_BLEURT = None
+# _BLEURT = None
 
 
-def _get_bleurt_metric():
-    global _BLEURT
-    if _BLEURT is None:
-        _BLEURT = datasets.load_metric('bleurt', 'bleurt-large-512')
-    return _BLEURT
+# def _get_bleurt_metric():
+#     global _BLEURT
+#     if _BLEURT is None:
+#         _BLEURT = datasets.load_metric('bleurt', 'bleurt-large-512')
+#     return _BLEURT
 
 
 _HF_ROUGE_METRIC = None
@@ -60,41 +60,41 @@ def _get_hf_rouge_metric():
 # We tuned the following threshold using "./tests/prover/test_scoring.py"
 LEVENSTEIN_SIMILARITY_THRESHOLD = 0.25
 ROUGE_THRESHOLD = 0.30
-BLEURT_SIMILARITY_THRESHOLD = - 0.40
+# BLEURT_SIMILARITY_THRESHOLD = - 0.40
 
 
-def _calc_levenstein_similarity(this: str, that: str) -> float:
+def _leven_sim(this: str, that: str) -> float:
     return 1 - _LEVENSTEIN.distance(this, that)
 
 
-def calc_levenstein_similarity_batch(golds: List[str], preds: List[str]) -> List[float]:
-    return [_calc_levenstein_similarity(gold, pred) for gold, pred in zip(golds, preds)]
+def _leven_sim_batch(golds: List[str], preds: List[str]) -> List[float]:
+    return [_leven_sim(gold, pred) for gold, pred in zip(golds, preds)]
 
 
-def calc_bleurt_similarity_batch(golds: List[str], preds: List[str]) -> List[float]:
-    return _get_bleurt_metric().compute(
-        references=golds,
-        predictions=preds,
-    )['scores']
+# def _bleurt_sim_batch(golds: List[str], preds: List[str]) -> List[float]:
+#     return _get_bleurt_metric().compute(
+#         references=golds,
+#         predictions=preds,
+#     )['scores']
 
 
-def calc_rouge_batch(golds: List[str], preds: List[str]) -> List[float]:
+def _rouge_batch(golds: List[str], preds: List[str]) -> List[float]:
     scores = []
     for gold, pred in zip(golds, preds):
         if len(gold.split(' ')) <= 2 or len(pred.split(' ')) <= 2:
-            score = _calc_levenstein_similarity(gold, pred)
+            score = _leven_sim(gold, pred)
         else:
             score = _ROUGE.score(pred, gold)['rouge2'].fmeasure
         scores.append(score)
     return scores
 
 
-def calc_max_pooling_similarity_batch(golds: List[str], preds: List[str]) -> List[float]:
-    lev_sims = calc_levenstein_similarity_batch(golds, preds)
-    bleurt_sims = calc_bleurt_similarity_batch(golds, preds)
-    rouge_sims = calc_rouge_batch(golds, preds)
-
-    return [max(lev_sims[i], bleurt_sims[i], rouge_sims[i]) for i in range(0, len(golds))]
+# def calc_max_pooling_similarity_batch(golds: List[str], preds: List[str]) -> List[float]:
+#     lev_sims = calc_levenstein_similarity_batch(golds, preds)
+#     bleurt_sims = _bleurt_sim_batch(golds, preds)
+#     rouge_sims = _rouge_batch(golds, preds)
+#
+#     return [max(lev_sims[i], bleurt_sims[i], rouge_sims[i]) for i in range(0, len(golds))]
 
 
 def _hf_rouge_postprocess_text(preds: List[str], labels: List[str]) -> Tuple[List[str], List[str]]:
@@ -117,35 +117,32 @@ def _hf_compute_rouges(decoded_labels: List[str], decoded_preds: List[str]) -> D
     return result
 
 
-def _raise_no_marker(text: str) -> None:
+def _raise_if_no_marker(text: str) -> None:
     if len(get_stance_markers(text)) == 0:
         raise ValueError('The text do not have marker: "%s"', text)
 
 
-def calc_metrics(proof_gold_texts: List[str],
-                 proof_pred_text: str,
-                 allow_reference_step=False,
-                 context: Optional[str] = None,
-                 similarity_threshold=False,
-                 allowed_additional_proof_steps=0,
-                 allow_any_proof_for_unknown=False,
-                 zero_one: bool = True) -> Dict[str, Any]:
+def compute_metrics(proof_gold_texts: List[str],
+                    proof_pred_text: str,
+                    allow_reference_step=False,
+                    context: Optional[str] = None,
+                    similarity_threshold=False,
+                    allowed_additional_proof_steps=0,
+                    allow_any_proof_for_unknown=False,
+                    zero_one: bool = True) -> Dict[str, Any]:
     if len(proof_gold_texts) >= 2:
         raise NotImplementedError()
     for proof_gold_text in proof_gold_texts:
-        _raise_no_marker(proof_gold_text)
+        _raise_if_no_marker(proof_gold_text)
 
     proof_gold_text = normalize_proof(proof_gold_texts[0])
     proof_pred_text = normalize_proof(proof_pred_text)
 
     metrics: Dict[str, Any] = {}
 
-    gold_labels = set(get_stance_markers(proof_gold_text))
-    pred_labels = set(get_stance_markers(proof_pred_text))
+    metrics['answer_accuracy'] = compute_answer_accuracy(proof_gold_text, proof_pred_text)
 
-    metrics['answer_accuracy'] = float(gold_labels == pred_labels)
-
-    zero_one_acc = calc_accuracy(
+    zero_one_acc = compute_proof_accuracy(
         proof_gold_text,
         proof_pred_text,
         allow_reference_step=allow_reference_step,
@@ -163,15 +160,22 @@ def calc_metrics(proof_gold_texts: List[str],
     return metrics
 
 
-def calc_accuracy(proof_gold_text: str,
-                  proof_pred_text: str,
-                  allow_reference_step=False,
-                  context: Optional[str] = None,
-                  similarity_threshold=False,
-                  allowed_additional_proof_steps=0,
-                  allow_any_proof_for_unknown=False,
-                  zero_one: bool = True) -> float:
-    _raise_no_marker(proof_gold_text)
+def compute_answer_accuracy(proof_gold_text: str,
+                            proof_pred_text: str) -> float:
+    gold_labels = set(get_stance_markers(proof_gold_text))
+    pred_labels = set(get_stance_markers(proof_pred_text))
+    return float(gold_labels == pred_labels)
+
+
+def compute_proof_accuracy(proof_gold_text: str,
+                           proof_pred_text: str,
+                           allow_reference_step=False,
+                           context: Optional[str] = None,
+                           similarity_threshold=False,
+                           allowed_additional_proof_steps=0,
+                           allow_any_proof_for_unknown=False,
+                           zero_one: bool = True) -> float:
+    _raise_if_no_marker(proof_gold_text)
 
     proof_gold_text = normalize_proof(proof_gold_text)
     proof_pred_text = normalize_proof(proof_pred_text)
@@ -186,7 +190,7 @@ def calc_accuracy(proof_gold_text: str,
         return 1.0
     else:
         try:
-            proof_score = calc_score(
+            proof_score = _compute_proof_score(
                 delete_stance_markers(proof_gold_text).rstrip(' '),
                 delete_stance_markers(proof_pred_text).rstrip(' '),
                 allow_reference_step=allow_reference_step,
@@ -200,13 +204,13 @@ def calc_accuracy(proof_gold_text: str,
         return proof_score
 
 
-def calc_score(proof_gold_text: str,
-               proof_pred_text: str,
-               allow_reference_step=False,
-               context: Optional[str] = None,
-               similarity_threshold=True,
-               allowed_additional_proof_steps=0,
-               zero_one: bool = True) -> float:
+def _compute_proof_score(proof_gold_text: str,
+                         proof_pred_text: str,
+                         allow_reference_step=False,
+                         context: Optional[str] = None,
+                         similarity_threshold=True,
+                         allowed_additional_proof_steps=0,
+                         zero_one: bool = True) -> float:
     """ Calculate the similarity score between gold and prediction.
 
     The score is invariant under the renaming of intermediate nodes.
@@ -221,7 +225,6 @@ def calc_score(proof_gold_text: str,
                                    proof_pred_text,
                                    allow_reference_step=allow_reference_step,
                                    context=context)
-
 
     logger.debug('=========== gold_premise_uids_to_concl_uid ==============')
     logger.debug('\n' + pformat(gold_premise_uids_to_concl_uid))
@@ -243,8 +246,8 @@ def calc_score(proof_gold_text: str,
         preds.append(pred_premise_uids_to_concl_sent[gold_premise_uids])
 
     if similarity_threshold:
-        levenstein_sims = calc_levenstein_similarity_batch(golds, preds)
-        rouge_sims = calc_rouge_batch(golds, preds)
+        levenstein_sims = _leven_sim_batch(golds, preds)
+        rouge_sims = _rouge_batch(golds, preds)
     else:
         levenstein_sims = [float('inf')] * len(golds)
         rouge_sims = [float('inf')] * len(golds)
@@ -266,7 +269,7 @@ def calc_score(proof_gold_text: str,
             else:
                 FP_budget -= 1
 
-    precision, recall, F = calc_F(tot, TP, FP)
+    precision, recall, F = _F_score(tot, TP, FP)
 
     if zero_one and not math.isclose(F, 1.0):
         return 0.0
@@ -303,7 +306,7 @@ def _get_aligned_proof_by_uids(proof_gold_text: str,
         def is_reference(gold_sent: str, pred_sent: str) -> bool:
             # LLMs generates reference sentences slightly different from the original one.
             # Thus, we allow similarity less than 1.0
-            lev_sim = calc_levenstein_similarity_batch([gold_sent], [pred_sent])[0]
+            lev_sim = _leven_sim_batch([gold_sent], [pred_sent])[0]
             return lev_sim >= 0.7
 
         reference_sent_id_to_int_id: Dict[str, str] = {}
@@ -529,7 +532,7 @@ def _make_assumption_mapping(proof_gold_text: str,
             if pred_id in consumed_pred_ids:
                 continue
 
-            similarity = _calc_levenstein_similarity(gold_sentence, pred_sentence)
+            similarity = _leven_sim(gold_sentence, pred_sentence)
             if similarity > max_similarity and similarity >= LEVENSTEIN_SIMILARITY_THRESHOLD:
                 max_pred_id = pred_id
                 max_similarity = similarity
@@ -552,7 +555,7 @@ def _make_assumption_mapping(proof_gold_text: str,
     return gold_id_to_uid, pred_id_to_uid
 
 
-def calc_F(gold_tot: int, TP: int, FP: int) -> Tuple[float, float, float]:
+def _F_score(gold_tot: int, TP: int, FP: int) -> Tuple[float, float, float]:
     if TP + FP == 0:
         precision = 1.0
     else:
@@ -577,7 +580,7 @@ def build_metrics(type_: str) -> Callable[[List[str], str], Dict[str, float]]:
         def calc(gold_proofs: List[str],
                  pred_proof: str,
                  context: Optional[str] = None) -> Dict[str, float]:
-            return calc_metrics(
+            return compute_metrics(
                 gold_proofs,
                 pred_proof,
                 context=context,
@@ -589,7 +592,7 @@ def build_metrics(type_: str) -> Callable[[List[str], str], Dict[str, float]]:
         def calc(gold_proofs: List[str],
                  pred_proof: str,
                  context: Optional[str] = None) -> Dict[str, float]:
-            return calc_metrics(
+            return compute_metrics(
                 gold_proofs,
                 pred_proof,
                 context=context,
