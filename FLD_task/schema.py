@@ -35,7 +35,6 @@ class Deduction(BaseModel):
 class SerializedDeduction(BaseModel):
     prompt: str
     proofs: Optional[List[str]] = []
-
     partial_proof: Optional[str] = None
     next_proof_step: Optional[str] = None
 

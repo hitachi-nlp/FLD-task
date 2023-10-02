@@ -235,9 +235,9 @@ def extract_assumptions(proof_text: str, no_lower=True) -> OrderedDict[str, str]
         assump_text = re.sub(r' *-> *', '', proof_text[begin:].split(';')[0])
         try:
             ident, sent = re.split(r':  *', assump_text)
-        except:
-            print(proof_text)
-            raise
+        except Exception as e:
+            logger.warning('failed: assump_text="%s"', assump_text)
+            raise e
         assumptions[ident.strip()] = normalize_sentence(sent, no_lower=no_lower)
     return assumptions
 
