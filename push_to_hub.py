@@ -12,6 +12,7 @@ from FLD_task import load_deduction, serialize
 @click.option('--valid', type=str, default=None)
 @click.option('--test', type=str, default=None)
 @click.option('--repo-name')
+@click.option('--subset-name', type=str, default='default')
 @click.option('--no-serial', is_flag=True)
 @click.option('--extension', type=str, default='json')
 @click.option('--use-auth-token', is_flag=True)
@@ -19,6 +20,7 @@ def main(train,
          valid,
          test,
          repo_name,
+         subset_name,
          no_serial,
          extension,
          use_auth_token):
@@ -51,7 +53,7 @@ def main(train,
         use_auth_token=use_auth_token,
     )
 
-    datasets.push_to_hub(repo_name)
+    datasets.push_to_hub(repo_name, subset_name or None)
 
 
 if __name__ == '__main__':
