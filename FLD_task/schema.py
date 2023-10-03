@@ -29,6 +29,9 @@ class Deduction(BaseModel):
     negative_proof_label: Optional[str] = None
     negative_world_assump_label: Optional[str] = None
 
+    prompt_serial: Optional[str] = None
+    proof_serial: Optional[str] = None
+
     version: Optional[str] = None
 
 
