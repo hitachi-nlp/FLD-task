@@ -84,13 +84,6 @@ def _serialize_input_nextstep(
     newlines=False,
     proof_indicator=True,
 ) -> Tuple[str, str, str]:
-    """
-
-    examples)
-    hypothesis = 'this is the hypothesis'
-    context = 'sent1: this is sentence1 sent2: this is sentence2 sent3: this is sentence3'
-    proof = 'sent1 & sent2 -> int1: the conclusion of sentence1 and sentence2; sent3 & int1 -> int2: the conclusion of int1 and sent3;'
-    """
     negative_proof = _strip_final_hypothesis_step(negative_proof) if negative_proof is not None else None
 
     if proof is None:

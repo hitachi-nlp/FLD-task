@@ -17,7 +17,7 @@ def load_deduction(dic: dict, force_version: str = None) -> Deduction:
 
         def map_to_new_field(old_name: str,
                              new_name: str,
-                             convert_func: Optional[[[Any], str]] = None):
+                             convert_func: Optional[Callable[[Any], str]] = None):
             if old_name in dic:
                 old_val = dic.pop(old_name, None)
                 if old_val is not None:
