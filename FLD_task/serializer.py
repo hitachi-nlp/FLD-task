@@ -14,6 +14,7 @@ def serialize(
     newlines=False,
     include_max_subproof_for_unknown=True,
     proof_indicator=True,
+    instruction=False,
 ) -> SerializedDeduction:
 
     if not include_max_subproof_for_unknown and _get_stance_marker(example.world_assump_label) == StanceMarker.UNKNOWN:
@@ -35,6 +36,7 @@ def serialize(
         sample_negative_proof=sample_negative_proof,
         newlines=newlines,
         proof_indicator=proof_indicator,
+        instruction=instruction,
     )
 
     serial = SerializedDeduction(
@@ -83,6 +85,7 @@ def _serialize_input_nextstep(
     sample_negative_proof=False,
     newlines=False,
     proof_indicator=True,
+    instruction=False,
 ) -> Tuple[str, str, str]:
     negative_proof = _strip_final_hypothesis_step(negative_proof) if negative_proof is not None else None
 
@@ -130,8 +133,8 @@ def _serialize_input_nextstep(
                                            [_get_stance_marker(world_assump_label)])
 
     prompt = ' ; '.join([
-        f'${HYPOTHESIS_IDENT}$ = {hypothesis}',
         f'${FACTS_IDENT}$ = {facts}',
+        f'${HYPOTHESIS_IDENT}$ = {hypothesis}',
     ])
     if proof_indicator:
         prompt = ' ; '.join([prompt, '$proof$ = '])
@@ -140,14 +143,18 @@ def _serialize_input_nextstep(
             raise ValueError('Can not add partial proof because proof_indicator=False is specified')
 
     if newlines:
-        prompt = re.sub(' *; *', ';\n', prompt)
-        prompt = re.sub(f'{FACT_IDENT}([0-9]*)', f'\n{FACT_IDENT}\g<1>', prompt).lstrip('\n')
+        prompt = re.sub(' *; *', ';\n\n', prompt)
+        prompt = re.sub(f' *{FACT_IDENT}([0-9]+)', f'\n{FACT_IDENT}\g<1>', prompt).lstrip('\n')
 
         if partial_proof is not None:
             partial_proof = re.sub(' *; *', ';\n', partial_proof)
-            partial_proof = re.sub(f'{FACT_IDENT}([0-9]*)', f'\{FACT_IDENT}\g<1>', partial_proof).lstrip('\n')
+            partial_proof = re.sub(f' *{FACT_IDENT}([0-9]+)', f'\{FACT_IDENT}\g<1>', partial_proof).lstrip('\n')
 
         next_step = re.sub(' *; *', ';\n', next_step)
+
+    if instruction:
+        _instruction = f"Let's think step by step the following problem. Based on the provided facts (${FACTS_IDENT}$), detail the steps leading to the hypothesis (${HYPOTHESIS_IDENT}$). Conclude with one of the markers: \"__PROVED__\" for proven, \"__DISPROVED__\" for disproven, or \"__UNKNOWN__\" if uncertain."
+        prompt = _instruction + '\n\n' + prompt
 
     return prompt, partial_proof, next_step
 
