@@ -8,7 +8,7 @@ import logging
 from .stance import delete_stance_markers, get_stance_markers
 logger = logging.getLogger(__name__)
 
-SENT_IDENT = 'sent'
+FACT_IDENT = 'sent'
 VOID_IDENT = 'void'
 INT_IDENT = 'int'
 HYPOTHESIS_IDENT = 'hypothesis'
@@ -83,7 +83,7 @@ def prettify_proof_text(proof_text: str, indent=0) -> str:
 
 
 def prettify_context_text(context_text: str, indent: int = 0) -> str:
-    sentences = re.sub('sent([0-9]+)', '\nsent\g<1>', context_text).strip('\n').split('\n')
+    sentences = re.sub(f'{FACT_IDENT}([0-9]+)', '\nsent\g<1>', context_text).strip('\n').split('\n')
     sentences = sorted(sentences, key = lambda sentence: int(re.sub(r'^sent([0-9]+).*', r'\g<1>', sentence)))
     pretty = ' ' * indent + ('\n' + ' ' * indent).join(sentences)
     return pretty
@@ -99,7 +99,7 @@ class NodeType(Enum):
 
 
 def get_node_type(rep: str) -> Optional[NodeType]:
-    if rep.strip().startswith('sent'):
+    if rep.strip().startswith(FACT_IDENT):
         return NodeType.sent
     elif rep.strip().startswith('int'):
         return NodeType.int

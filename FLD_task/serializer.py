@@ -4,7 +4,7 @@ import random
 
 from FLD_task.proof import add_stance_markers, StanceMarker
 from FLD_task.schema import Deduction, SerializedDeduction
-from FLD_task.proof.utils import HYPOTHESIS_IDENT
+from FLD_task.proof.utils import HYPOTHESIS_IDENT, FACT_IDENT
 
 
 def serialize(
@@ -141,11 +141,11 @@ def _serialize_input_nextstep(
 
     if newlines:
         prompt = re.sub(' *; *', ';\n', prompt)
-        prompt = re.sub('sent([0-9]*)', r'\nsent\g<1>', prompt).lstrip('\n')
+        prompt = re.sub(f'{FACT_IDENT}([0-9]*)', r'\nsent\g<1>', prompt).lstrip('\n')
 
         if partial_proof is not None:
             partial_proof = re.sub(' *; *', ';\n', partial_proof)
-            partial_proof = re.sub('sent([0-9]*)', r'\nsent\g<1>', partial_proof).lstrip('\n')
+            partial_proof = re.sub(f'{FACT_IDENT}([0-9]*)', r'\nsent\g<1>', partial_proof).lstrip('\n')
 
         next_step = re.sub(' *; *', ';\n', next_step)
 
