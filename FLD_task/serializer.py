@@ -4,7 +4,7 @@ import random
 
 from FLD_task.proof import add_stance_markers, StanceMarker
 from FLD_task.schema import Deduction, SerializedDeduction
-from FLD_task.proof.utils import HYPOTHESIS_IDENT, FACT_IDENT
+from FLD_task.proof.utils import HYPOTHESIS_IDENT, FACT_IDENT, FACTS_IDENT
 
 
 def serialize(
@@ -25,7 +25,7 @@ def serialize(
 
     prompt, partial_proof, next_proof_step = _serialize_input_nextstep(
         example.hypothesis,
-        example.context,
+        example.facts,
 
         proof=proof,
         world_assump_label=example.world_assump_label,
@@ -44,7 +44,7 @@ def serialize(
         next_proof_step=next_proof_step,
     )
 
-    serialized_proof = _serialize_gold(example.hypothesis, example.context, example.world_assump_label, proof=proof)
+    serialized_proof = _serialize_gold(example.hypothesis, example.facts, example.world_assump_label, proof=proof)
     if serialized_proof is not None:
         serial.proof = serialized_proof
 
@@ -131,7 +131,7 @@ def _serialize_input_nextstep(
 
     prompt = ' ; '.join([
         f'$hypothesis$ = {hypothesis}',
-        f'$context$ = {context}',
+        f'${FACTS_IDENT}$ = {context}',
     ])
     if proof_indicator:
         prompt = ' ; '.join([prompt, '$proof$ = '])

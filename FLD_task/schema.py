@@ -6,10 +6,10 @@ from pydantic import BaseModel
 
 class Deduction(BaseModel):
     hypothesis: str
-    context: str
+    facts: str
 
     hypothesis_formula: Optional[str] = None
-    context_formula: Optional[str] = None
+    facts_formula: Optional[str] = None
 
     proofs: Optional[List[str]] = []
     proof_label: Optional[str] = None

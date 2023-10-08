@@ -1,6 +1,7 @@
 import re
 from typing import Union, Optional, Callable, Any
 from FLD_task.schema import Deduction
+from FLD_task.proof.utils import FACT_IDENT, FACTS_IDENT
 
 
 def load_deduction(dic: dict, force_version: str = None) -> Deduction:
@@ -26,12 +27,12 @@ def load_deduction(dic: dict, force_version: str = None) -> Deduction:
                 dic[new_name] = old_val_conv
 
     def rename_fact_ident(rep: str) -> str:
-        return re.sub(r'sent([0-9]+)', r'fact\g<1>', rep)
+        return re.sub(r'sent([0-9]+)', f'{FACT_IDENT}\g<1>', rep)
 
     if version in ['0.0', '0.1', '0.2']:
 
-        map_to_new_field('context', 'context', convert_func=rename_fact_ident)
-        map_to_new_field('context_formula', 'context_formula', convert_func=rename_fact_ident)
+        map_to_new_field('context', f'{FACTS_IDENT}', convert_func=rename_fact_ident)
+        map_to_new_field('context_formula', f'{FACTS_IDENT}facts_formula', convert_func=rename_fact_ident)
         map_to_new_field('proofs', 'proofs', convert_func = lambda proofs: [rename_fact_ident(p) for p in proofs])
         map_to_new_field('proofs_formula', 'proofs_formula', convert_func = lambda proofs: [rename_fact_ident(p) for p in proofs])
         map_to_new_field('negative_proofs', 'negative_proofs', convert_func = lambda proofs: [rename_fact_ident(p) for p in proofs])

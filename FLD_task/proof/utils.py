@@ -8,6 +8,7 @@ import logging
 from .stance import delete_stance_markers, get_stance_markers
 logger = logging.getLogger(__name__)
 
+FACTS_IDENT = 'facts'
 FACT_IDENT = 'fact'
 VOID_IDENT = 'void'
 INT_IDENT = 'int'
