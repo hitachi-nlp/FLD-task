@@ -67,9 +67,9 @@ def test_serialize_example():
         return load_deduction(*args, **kwargs, force_version='DeductionInstance')
 
     hypothesis = 'this is the hypothesis'
-    context = 'sent1: this is sentence1 sent2: this is sentence2 sent3: this is sentence3 sent4: this is sentence4 sent5: this is sentence5'
-    proof = 'sent1 & sent2 -> int1: first conclusion; sent3 & int1 -> int2: second conclusion;'
-    negative_proof = 'sent4 & sent5 -> int1: first negative conclusion; sent3 & int1 -> int2: second negative conclusion;'
+    context = 'fact1: this is sentence1 fact2: this is sentence2 fact3: this is sentence3 fact4: this is sentence4 fact5: this is sentence5'
+    proof = 'fact1 & fact2 -> int1: first conclusion; fact3 & int1 -> int2: second conclusion;'
+    negative_proof = 'fact4 & fact5 -> int1: first negative conclusion; fact3 & int1 -> int2: second negative conclusion;'
 
     test_one_example(
         _load_deduction({
@@ -106,12 +106,12 @@ def test_serialize_example():
             SerializedDeduction.parse_obj({
                 'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
                 'partial_proof': None,
-                'next_proof_step': 'sent1 & sent2 -> int1: first conclusion;',
+                'next_proof_step': 'fact1 & fact2 -> int1: first conclusion;',
             }),
             SerializedDeduction.parse_obj({
                 'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
-                'partial_proof': 'sent1 & sent2 -> int1: first conclusion;',
-                'next_proof_step': 'sent3 & int1 -> int2: second conclusion; __PROVED__',
+                'partial_proof': 'fact1 & fact2 -> int1: first conclusion;',
+                'next_proof_step': 'fact3 & int1 -> int2: second conclusion; __PROVED__',
             }),
 
         ],
@@ -133,7 +133,7 @@ def test_serialize_example():
             SerializedDeduction.parse_obj({
                 'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
                 'partial_proof': None,
-                'next_proof_step': 'sent4 & sent5 -> int1: first negative conclusion; sent3 & int1 -> int2: second negative conclusion; sent1 & sent2 -> int3: first conclusion; sent3 & int3 -> int4: second conclusion; __PROVED__'
+                'next_proof_step': 'fact4 & fact5 -> int1: first negative conclusion; fact3 & int1 -> int2: second negative conclusion; fact1 & fact2 -> int3: first conclusion; fact3 & int3 -> int4: second conclusion; __PROVED__'
             }),
         ],
         stepwise=False,
@@ -155,42 +155,42 @@ def test_serialize_example():
             SerializedDeduction.parse_obj({
                 'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
                 'partial_proof': None,
-                'next_proof_step': 'sent1 & sent2 -> int1: first conclusion;'
+                'next_proof_step': 'fact1 & fact2 -> int1: first conclusion;'
             }),
 
             # p1 p2
             SerializedDeduction.parse_obj({
                 'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
-                'partial_proof':'sent1 & sent2 -> int1: first conclusion;',
-                'next_proof_step': 'sent3 & int1 -> int2: second conclusion; __PROVED__'
+                'partial_proof':'fact1 & fact2 -> int1: first conclusion;',
+                'next_proof_step': 'fact3 & int1 -> int2: second conclusion; __PROVED__'
             }),
 
             # p1 n1
             # SerializedDeduction.parse_obj({
             #     'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
-            #     'partial_proof':'sent1 & sent2 -> int1: first conclusion;',
-            #     'next_proof_step': 'sent4 & sent5 -> int2: first negative conclusion;'
+            #     'partial_proof':'fact1 & fact2 -> int1: first conclusion;',
+            #     'next_proof_step': 'fact4 & fact5 -> int2: first negative conclusion;'
             # }),
 
             # p1 n1 p2
             SerializedDeduction.parse_obj({
                 'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
-                'partial_proof': 'sent1 & sent2 -> int1: first conclusion; sent4 & sent5 -> int2: first negative conclusion;',
-                'next_proof_step': 'sent3 & int1 -> int3: second conclusion; __PROVED__'
+                'partial_proof': 'fact1 & fact2 -> int1: first conclusion; fact4 & fact5 -> int2: first negative conclusion;',
+                'next_proof_step': 'fact3 & int1 -> int3: second conclusion; __PROVED__'
             }),
 
             # p1 n1 n2
             # SerializedDeduction.parse_obj({
             #     'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
-            #     'partial_proof': 'sent1 & sent2 -> int1: first conclusion; sent4 & sent5 -> int2: first negative conclusion;',
-            #     'next_proof_step': 'sent3 & int2 -> int3: second negative conclusion;'
+            #     'partial_proof': 'fact1 & fact2 -> int1: first conclusion; fact4 & fact5 -> int2: first negative conclusion;',
+            #     'next_proof_step': 'fact3 & int2 -> int3: second negative conclusion;'
             # }),
 
             # p1 n1 n2 p2
             SerializedDeduction.parse_obj({
                 'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
-                'partial_proof':'sent1 & sent2 -> int1: first conclusion; sent4 & sent5 -> int2: first negative conclusion; sent3 & int2 -> int3: second negative conclusion;',
-                'next_proof_step': 'sent3 & int1 -> int4: second conclusion; __PROVED__'
+                'partial_proof':'fact1 & fact2 -> int1: first conclusion; fact4 & fact5 -> int2: first negative conclusion; fact3 & int2 -> int3: second negative conclusion;',
+                'next_proof_step': 'fact3 & int1 -> int4: second conclusion; __PROVED__'
             }),
 
 
@@ -200,56 +200,56 @@ def test_serialize_example():
             # SerializedDeduction.parse_obj({
             #     'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
             #     'partial_proof': None,
-            #     'next_proof_step': 'sent4 & sent5 -> int1: first negative conclusion;'
+            #     'next_proof_step': 'fact4 & fact5 -> int1: first negative conclusion;'
             # }),
 
             # n1 p1
             SerializedDeduction.parse_obj({
                 'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
-                'partial_proof':'sent4 & sent5 -> int1: first negative conclusion;',
-                'next_proof_step': 'sent1 & sent2 -> int2: first conclusion;'
+                'partial_proof':'fact4 & fact5 -> int1: first negative conclusion;',
+                'next_proof_step': 'fact1 & fact2 -> int2: first conclusion;'
             }),
 
             # n1 p1 p2
             SerializedDeduction.parse_obj({
                 'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
-                'partial_proof':'sent4 & sent5 -> int1: first negative conclusion; sent1 & sent2 -> int2: first conclusion;',
-                'next_proof_step': 'sent3 & int2 -> int3: second conclusion; __PROVED__'
+                'partial_proof':'fact4 & fact5 -> int1: first negative conclusion; fact1 & fact2 -> int2: first conclusion;',
+                'next_proof_step': 'fact3 & int2 -> int3: second conclusion; __PROVED__'
             }),
 
             # n1 p1 n2
             # SerializedDeduction.parse_obj({
-            #     'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = sent4 & sent5 -> int1: first negative conclusion; sent1 & sent2 -> int2: first conclusion;',
+            #     'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = fact4 & fact5 -> int1: first negative conclusion; fact1 & fact2 -> int2: first conclusion;',
             #     'partial_proof': None,
-            #     'next_proof_step': 'sent3 & int1 -> int3: second negative conclusion;'
+            #     'next_proof_step': 'fact3 & int1 -> int3: second negative conclusion;'
             # }),
 
             # n1 p1 n2 p2
             SerializedDeduction.parse_obj({
                 'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
-                'partial_proof':'sent4 & sent5 -> int1: first negative conclusion; sent1 & sent2 -> int2: first conclusion; sent3 & int1 -> int3: second negative conclusion;',
-                'next_proof_step': 'sent3 & int2 -> int4: second conclusion; __PROVED__'
+                'partial_proof':'fact4 & fact5 -> int1: first negative conclusion; fact1 & fact2 -> int2: first conclusion; fact3 & int1 -> int3: second negative conclusion;',
+                'next_proof_step': 'fact3 & int2 -> int4: second conclusion; __PROVED__'
             }),
 
             # n1 n2
             # SerializedDeduction.parse_obj({
             #     'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
-            #     'partial_proof':'sent4 & sent5 -> int1: first negative conclusion;',
-            #     'next_proof_step': 'sent3 & int1 -> int2: second negative conclusion;'
+            #     'partial_proof':'fact4 & fact5 -> int1: first negative conclusion;',
+            #     'next_proof_step': 'fact3 & int1 -> int2: second negative conclusion;'
             # }),
 
             # n1 n2 p1
             SerializedDeduction.parse_obj({
                 'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
-                'partial_proof':'sent4 & sent5 -> int1: first negative conclusion; sent3 & int1 -> int2: second negative conclusion;',
-                'next_proof_step': 'sent1 & sent2 -> int3: first conclusion;'
+                'partial_proof':'fact4 & fact5 -> int1: first negative conclusion; fact3 & int1 -> int2: second negative conclusion;',
+                'next_proof_step': 'fact1 & fact2 -> int3: first conclusion;'
             }),
 
             # n1 n2 p1 p2
             SerializedDeduction.parse_obj({
                 'prompt': f'$hypothesis$ = {hypothesis} ; $context$ = {context} ; $proof$ = ',
-                'partial_proof':'sent4 & sent5 -> int1: first negative conclusion; sent3 & int1 -> int2: second negative conclusion; sent1 & sent2 -> int3: first conclusion;',
-                'next_proof_step': 'sent3 & int3 -> int4: second conclusion; __PROVED__'
+                'partial_proof':'fact4 & fact5 -> int1: first negative conclusion; fact3 & int1 -> int2: second negative conclusion; fact1 & fact2 -> int3: first conclusion;',
+                'next_proof_step': 'fact3 & int3 -> int4: second conclusion; __PROVED__'
             }),
 
 
@@ -283,8 +283,8 @@ def test_serialize_example():
 
 
 def test_splice_negative_proof():
-    proof = 'sent1 -> int1: hoge; sent2 & int1 -> int2: fuga;'
-    negative_proof = 'sent3 -> int1: negative hoge; sent2 & int1 -> int2: negative fuga;'
+    proof = 'fact1 -> int1: hoge; fact2 & int1 -> int2: fuga;'
+    negative_proof = 'fact3 -> int1: negative hoge; fact2 & int1 -> int2: negative fuga;'
 
     for _ in range(0, 100):
         spliced_proof = _splice_negative_proof(
@@ -292,9 +292,9 @@ def test_splice_negative_proof():
             negative_proof,
         )
         assert spliced_proof in [
-            'sent1 -> int1: hoge; sent3 -> int2: negative hoge; sent2 & int2 -> int3: negative fuga; sent2 & int1 -> int4: fuga;',
-            'sent3 -> int1: negative hoge; sent1 -> int2: hoge; sent2 & int1 -> int3: negative fuga; sent2 & int2 -> int4: fuga;',
-            'sent3 -> int1: negative hoge; sent2 & int1 -> int2: negative fuga; sent1 -> int3: hoge; sent2 & int3 -> int4: fuga;',
+            'fact1 -> int1: hoge; fact3 -> int2: negative hoge; fact2 & int2 -> int3: negative fuga; fact2 & int1 -> int4: fuga;',
+            'fact3 -> int1: negative hoge; fact1 -> int2: hoge; fact2 & int1 -> int3: negative fuga; fact2 & int2 -> int4: fuga;',
+            'fact3 -> int1: negative hoge; fact2 & int1 -> int2: negative fuga; fact1 -> int3: hoge; fact2 & int3 -> int4: fuga;',
         ]
 
 
@@ -322,15 +322,15 @@ def test_random_splice():
 
 
 def test_rename_ints_with_offset():
-    assert _rename_ints_with_offset('sent1 -> int1: hoge; sent2 -> int2: fuga;', 3) == 'sent1 -> int3: hoge; sent2 -> int4: fuga;'
-    assert _rename_ints_with_offset('sent1 -> int2: hoge; sent2 -> int1: fuga;', 3) == 'sent1 -> int4: hoge; sent2 -> int3: fuga;'
-    assert _rename_ints_with_offset('sent1 -> int1: hoge; sent2 -> int2: fuga; sent3 -> int10: piyo;', 3) == 'sent1 -> int3: hoge; sent2 -> int4: fuga; sent3 -> int12: piyo;'
-    assert _rename_ints_with_offset('sent1 -> int1: hoge; sent2 -> int2: fuga; sent3 & int1 -> int10: piyo;', 3) == 'sent1 -> int3: hoge; sent2 -> int4: fuga; sent3 & int3 -> int12: piyo;'
+    assert _rename_ints_with_offset('fact1 -> int1: hoge; fact2 -> int2: fuga;', 3) == 'fact1 -> int3: hoge; fact2 -> int4: fuga;'
+    assert _rename_ints_with_offset('fact1 -> int2: hoge; fact2 -> int1: fuga;', 3) == 'fact1 -> int4: hoge; fact2 -> int3: fuga;'
+    assert _rename_ints_with_offset('fact1 -> int1: hoge; fact2 -> int2: fuga; fact3 -> int10: piyo;', 3) == 'fact1 -> int3: hoge; fact2 -> int4: fuga; fact3 -> int12: piyo;'
+    assert _rename_ints_with_offset('fact1 -> int1: hoge; fact2 -> int2: fuga; fact3 & int1 -> int10: piyo;', 3) == 'fact1 -> int3: hoge; fact2 -> int4: fuga; fact3 & int3 -> int12: piyo;'
 
 
 def test_rename_ints_ascending():
-    print(_rename_ints_ascending('sent1 -> int100: hoge; int100 & int2 -> int7: fuga;'))
-    assert _rename_ints_ascending('sent1 -> int100: hoge; int100 & int2 -> int7: fuga;') == 'sent1 -> int1: hoge; int1 & int2 -> int3: fuga;'
+    print(_rename_ints_ascending('fact1 -> int100: hoge; int100 & int2 -> int7: fuga;'))
+    assert _rename_ints_ascending('fact1 -> int100: hoge; int100 & int2 -> int7: fuga;') == 'fact1 -> int1: hoge; int1 & int2 -> int3: fuga;'
 
 
 def test_get_lowest_int_no():

@@ -296,7 +296,7 @@ def _get_aligned_proof_by_uids(proof_gold_text: str,
     pred_premise_ids_to_concl_id, pred_premise_ids_to_concl_sent = _split_steps_into_id_dics(proof_pred_text)
 
     if allow_reference_step:
-        # truncate reference steps which is something like "sent4 (hoge) -> int1: hoge"
+        # truncate reference steps which is something like "fact4 (hoge) -> int1: hoge"
 
         if context is None:
             raise ValueError('can not judge reference step because the context is not specified')
@@ -379,7 +379,7 @@ def _get_aligned_proof_by_uids(proof_gold_text: str,
         pred_premise_ids_to_concl_sent = pred_premise_ids_to_concl_sent_reference_exluded_int_remaped
 
     def premise_sort_key(premise_ids: Tuple[str]) -> Any:
-        # sort key so that ('sent1', 'sent2') is faster than ('sent1', 'int1') and ('int1', 'int2')
+        # sort key so that ('fact1', 'fact2') is faster than ('fact1', 'int1') and ('int1', 'int2')
         # not that False will be at the first of the sequence when sorted
         return (
             not all(get_node_type(premise_id) == NodeType.sent for premise_id in premise_ids),

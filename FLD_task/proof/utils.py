@@ -8,7 +8,7 @@ import logging
 from .stance import delete_stance_markers, get_stance_markers
 logger = logging.getLogger(__name__)
 
-FACT_IDENT = 'sent'
+FACT_IDENT = 'fact'
 VOID_IDENT = 'void'
 INT_IDENT = 'int'
 HYPOTHESIS_IDENT = 'hypothesis'
@@ -83,8 +83,8 @@ def prettify_proof_text(proof_text: str, indent=0) -> str:
 
 
 def prettify_context_text(context_text: str, indent: int = 0) -> str:
-    sentences = re.sub(f'{FACT_IDENT}([0-9]+)', '\nsent\g<1>', context_text).strip('\n').split('\n')
-    sentences = sorted(sentences, key = lambda sentence: int(re.sub(r'^sent([0-9]+).*', r'\g<1>', sentence)))
+    sentences = re.sub(FACT_IDENT + '([0-9]+)', f'\n{FACT_IDENT}\g<1>', context_text).strip('\n').split('\n')
+    sentences = sorted(sentences, key = lambda sentence: int(re.sub(f'^{FACT_IDENT}([0-9]+).*', r'\g<1>', sentence)))
     pretty = ' ' * indent + ('\n' + ' ' * indent).join(sentences)
     return pretty
 
@@ -117,9 +117,9 @@ def get_node_type(rep: str) -> Optional[NodeType]:
 
 def extract_ident(rep: str, allow_sentence=False) -> Optional[str]:
     if allow_sentence:
-        m = re.match(r"(?P<ident>(sent\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|hypothesis[; ]))", rep)
+        m = re.match("(?P<ident>({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|hypothesis[; ]))", rep)
     else:
-        m = re.fullmatch(r"(?P<ident>(sent\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|hypothesis[; ]))", rep)
+        m = re.fullmatch("(?P<ident>({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|hypothesis[; ]))", rep)
     if m is None:
         return None
     return m["ident"][:-1]
@@ -127,7 +127,7 @@ def extract_ident(rep: str, allow_sentence=False) -> Optional[str]:
 
 def extract_idents(rep: str) -> List[str]:
     idents = []
-    for ident in re.findall(r'(sent\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|hypothesis[; ])', rep):
+    for ident in re.findall(f'({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|hypothesis[; ])', rep):
         idents.append(ident[:-1])
     return idents
 
@@ -145,7 +145,7 @@ def extract_ident_sent(rep: str) -> Optional[Tuple[str, str]]:
 def extract_ident_sents(rep: str) -> Dict[str, str]:
     ident_sents: Dict[str, str] = {}
 
-    ident_matches = [m for m in re.finditer(r"(sent\d*: |int\d*: |assump\d*: )", rep)]
+    ident_matches = [m for m in re.finditer(f"({FACT_IDENT}\d*: |int\d*: |assump\d*: )", rep)]
     is_proof_rep = rep.find(' -> ') >= 0
 
     for i_match, match in enumerate(ident_matches):
@@ -160,7 +160,6 @@ def extract_ident_sents(rep: str) -> Dict[str, str]:
 
         ident = match.group()[:-2]  # strip ":"
         sent = rep[match.end():end]
-        # ident_sents[ident] = re.sub(' *;* *$', '', re.sub('^ *', '', sent))
         ident_sents[ident] = sent.rstrip(' ')
 
     return ident_sents
@@ -191,7 +190,7 @@ def get_lowest_vacant_int_id(text: str) -> Optional[int]:
 
 
 def is_valid_premise(rep: str) -> bool:
-    return re.fullmatch(r"(sent\d+|int\d+|assump\d+|\[assump\d+\]|void)", rep)
+    return re.fullmatch(f"({FACT_IDENT}\d+|int\d+|assump\d+|\[assump\d+\]|void)", rep)
 
 
 def normalize(text: str) -> str:
@@ -222,7 +221,7 @@ def extract_context(ctx: str, no_lower=True) -> OrderedDict[str, str]:
         {
             ident.strip(): normalize_sentence(sent, no_lower=no_lower)
             for ident, sent in re.findall(
-                r"(?P<ident>sent\d+): (?P<sent>.+?) (?=sent\d+)", ctx + " sent999"
+                f"(?P<ident>{FACT_IDENT}\d+): (?P<{FACT_IDENT}>.+?) (?={FACT_IDENT}\d+)", ctx + f" {FACT_IDENT}999"
             )
         }
     )
