@@ -204,7 +204,7 @@ def test_calc_score_on_toy_examples():
     )
     assert (math.isclose(score, 1.0))
 
-    # context reordering of the previous example
+    # facts reordering of the previous example
     score = _calc_score(
         '; '.join([
             'int1 -> int2: this is a sentence C',
@@ -444,7 +444,7 @@ def test_calc_score_on_toy_examples():
         ]),
         zero_one=True,
         allow_reference_step=True,
-        context='fact1: this is a sentence A fact2: this is a sentence B'
+        facts='fact1: this is a sentence A fact2: this is a sentence B'
     )
     assert (math.isclose(score, 1.0))
 
@@ -459,7 +459,7 @@ def test_calc_score_on_toy_examples():
         ]),
         zero_one=True,
         allow_reference_step=True,
-        context='fact1: this is a sentence A fact2: this is a sentence B'
+        facts='fact1: this is a sentence A fact2: this is a sentence B'
     )
     assert (math.isclose(score, 1.0))
 
@@ -475,7 +475,7 @@ def test_calc_score_on_toy_examples():
         ]),
         zero_one=True,
         allow_reference_step=True,
-        context='fact1: this is a sentence A'
+        facts='fact1: this is a sentence A'
     )
     assert (math.isclose(score, 1.0))
 
@@ -585,12 +585,12 @@ def test_calc_score_on_real_examples():
 
         zero_one=True,
         allow_reference_step=True,
-        context='fact1: if something grafts, it will not letter and is bubaline '
-                'fact2: if a cubist is tense it grafts '
-                'fact3: if a cubist designates intemperance it is tense '
-                'fact4: if something grafts, it will not depart and is bubaline '
-                'fact5: if a cubist is tense it reship '
-                'fact6: if a cubist designates intemperance it is wieldy ',
+        facts='fact1: if something grafts, it will not letter and is bubaline '
+              'fact2: if a cubist is tense it grafts '
+              'fact3: if a cubist designates intemperance it is tense '
+              'fact4: if something grafts, it will not depart and is bubaline '
+              'fact5: if a cubist is tense it reship '
+              'fact6: if a cubist designates intemperance it is wieldy ',
     )
     assert (math.isclose(score, 0.0))
 

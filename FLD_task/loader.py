@@ -32,7 +32,7 @@ def load_deduction(dic: dict, force_version: str = None) -> Deduction:
     if version in ['0.0', '0.1', '0.2']:
 
         map_to_new_field('context', f'{FACTS_IDENT}', convert_func=rename_fact_ident)
-        map_to_new_field('context_formula', f'{FACTS_IDENT}facts_formula', convert_func=rename_fact_ident)
+        map_to_new_field('context_formula', f'{FACTS_IDENT}_formula', convert_func=rename_fact_ident)
         map_to_new_field('proofs', 'proofs', convert_func = lambda proofs: [rename_fact_ident(p) for p in proofs])
         map_to_new_field('proofs_formula', 'proofs_formula', convert_func = lambda proofs: [rename_fact_ident(p) for p in proofs])
         map_to_new_field('negative_proofs', 'negative_proofs', convert_func = lambda proofs: [rename_fact_ident(p) for p in proofs])

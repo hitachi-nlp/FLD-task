@@ -83,8 +83,8 @@ def prettify_proof_text(proof_text: str, indent=0) -> str:
     return pretty
 
 
-def prettify_context_text(context_text: str, indent: int = 0) -> str:
-    sentences = re.sub(FACT_IDENT + '([0-9]+)', f'\n{FACT_IDENT}\g<1>', context_text).strip('\n').split('\n')
+def prettify_facts_text(facts_text: str, indent: int = 0) -> str:
+    sentences = re.sub(FACT_IDENT + '([0-9]+)', f'\n{FACT_IDENT}\g<1>', facts_text).strip('\n').split('\n')
     sentences = sorted(sentences, key = lambda sentence: int(re.sub(f'^{FACT_IDENT}([0-9]+).*', r'\g<1>', sentence)))
     pretty = ' ' * indent + ('\n' + ' ' * indent).join(sentences)
     return pretty
@@ -110,7 +110,7 @@ def get_node_type(rep: str) -> Optional[NodeType]:
         return NodeType.assump_deletion
     elif rep.strip().startswith('void'):
         return NodeType.void
-    elif rep.strip().startswith('hypothesis'):
+    elif rep.strip().startswith(HYPOTHESIS_IDENT):
         return NodeType.hypothesis
     else:
         return None
@@ -118,9 +118,9 @@ def get_node_type(rep: str) -> Optional[NodeType]:
 
 def extract_ident(rep: str, allow_sentence=False) -> Optional[str]:
     if allow_sentence:
-        m = re.match("(?P<ident>({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|hypothesis[; ]))", rep)
+        m = re.match("(?P<ident>({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|{HYPOTHESIS_IDENT}[; ]))", rep)
     else:
-        m = re.fullmatch("(?P<ident>({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|hypothesis[; ]))", rep)
+        m = re.fullmatch("(?P<ident>({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|{HYPOTHESIS_IDENT}[; ]))", rep)
     if m is None:
         return None
     return m["ident"][:-1]
@@ -128,7 +128,7 @@ def extract_ident(rep: str, allow_sentence=False) -> Optional[str]:
 
 def extract_idents(rep: str) -> List[str]:
     idents = []
-    for ident in re.findall(f'({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|hypothesis[; ])', rep):
+    for ident in re.findall(f'({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|{HYPOTHESIS_IDENT}[; ])', rep):
         idents.append(ident[:-1])
     return idents
 
@@ -214,7 +214,7 @@ def normalize_sentence(text: str, no_lower=True) -> str:
     return text
 
 
-def extract_context(ctx: str, no_lower=True) -> OrderedDict[str, str]:
+def extract_facts(ctx: str, no_lower=True) -> OrderedDict[str, str]:
     """
     Extract supporting facts from string to dict.
     """

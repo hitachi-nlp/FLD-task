@@ -1,5 +1,5 @@
 from .utils import (
-    prettify_context_text,
+    prettify_facts_text,
     prettify_proof_text,
     InvalidProof,
     InvalidProofStep,

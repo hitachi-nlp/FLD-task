@@ -1,10 +1,10 @@
 from typing import Optional, List, Dict, Any
 from pprint import pformat
 
-from .proof.utils import prettify_context_text, prettify_proof_text
+from .proof.utils import prettify_facts_text, prettify_proof_text
 
 
-def log_example(context: Optional[str] = None,
+def log_example(facts: Optional[str] = None,
                 hypothesis: Optional[str] = None,
                 gold_proofs: Optional[List[str]] = None,
                 pred_proof: Optional[str] = None,
@@ -33,13 +33,13 @@ def log_example(context: Optional[str] = None,
 
     log_info_lines.append('\n\n\n=========================================== example ===========================================')
 
-    if context is not None:
-        log_info_lines.append('\n-------------- context        ----------------')
+    if facts is not None:
+        log_info_lines.append('\n-------------- facts        ----------------')
         try:
-            log_info_lines.append(prettify_context_text(context))
+            log_info_lines.append(prettify_facts_text(facts))
         except Exception as e:
-            log_warn_lines.append('[!] could not prettify the above context due to the following error:' + '\n' + str(e))
-            log_info_lines.append(context)
+            log_warn_lines.append('[!] could not prettify the above facts due to the following error:' + '\n' + str(e))
+            log_info_lines.append(facts)
 
     if hypothesis is not None:
         log_info_lines.append('\n-------------- hypothesis     ----------------')

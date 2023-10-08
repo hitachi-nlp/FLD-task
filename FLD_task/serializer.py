@@ -52,12 +52,12 @@ def serialize(
 
 
 def _serialize_gold(hypothesis: str,
-                    context: str,
+                    facts: str,
                     world_assump_label: Optional[str] = None,
                     proof: Optional[str] = None) -> str:
     _, partial_proof, next_step = _serialize_input_nextstep(
         hypothesis,
-        context,
+        facts,
 
         proof=proof,
         world_assump_label=world_assump_label,
@@ -73,7 +73,7 @@ def _serialize_gold(hypothesis: str,
 
 def _serialize_input_nextstep(
     hypothesis: str,
-    context: str,
+    facts: str,
 
     proof: Optional[str] = None,
     world_assump_label: Optional[str] = None,
@@ -130,8 +130,8 @@ def _serialize_input_nextstep(
                                            [_get_stance_marker(world_assump_label)])
 
     prompt = ' ; '.join([
-        f'$hypothesis$ = {hypothesis}',
-        f'${FACTS_IDENT}$ = {context}',
+        f'${HYPOTHESIS_IDENT}$ = {hypothesis}',
+        f'${FACTS_IDENT}$ = {facts}',
     ])
     if proof_indicator:
         prompt = ' ; '.join([prompt, '$proof$ = '])

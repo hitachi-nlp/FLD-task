@@ -19,7 +19,7 @@ from FLD_task.proof.utils import (
     get_node_type,
     NodeType,
     extract_idents,
-    extract_context,
+    extract_facts,
     extract_assumptions,
     HYPOTHESIS_IDENT,
     VOID_IDENT,
@@ -125,7 +125,7 @@ def _raise_if_no_marker(text: str) -> None:
 def compute_metrics(proof_gold_texts: List[str],
                     proof_pred_text: str,
                     allow_reference_step=False,
-                    context: Optional[str] = None,
+                    facts: Optional[str] = None,
                     similarity_threshold=False,
                     allowed_additional_proof_steps=0,
                     allow_any_proof_for_unknown=False,
@@ -146,7 +146,7 @@ def compute_metrics(proof_gold_texts: List[str],
         proof_gold_text,
         proof_pred_text,
         allow_reference_step=allow_reference_step,
-        context=context,
+        facts=facts,
         similarity_threshold=similarity_threshold,
         allowed_additional_proof_steps=allowed_additional_proof_steps,
         allow_any_proof_for_unknown=allow_any_proof_for_unknown,
@@ -170,7 +170,7 @@ def compute_answer_accuracy(proof_gold_text: str,
 def compute_proof_accuracy(proof_gold_text: str,
                            proof_pred_text: str,
                            allow_reference_step=False,
-                           context: Optional[str] = None,
+                           facts: Optional[str] = None,
                            similarity_threshold=False,
                            allowed_additional_proof_steps=0,
                            allow_any_proof_for_unknown=False,
@@ -194,7 +194,7 @@ def compute_proof_accuracy(proof_gold_text: str,
                 delete_stance_markers(proof_gold_text).rstrip(' '),
                 delete_stance_markers(proof_pred_text).rstrip(' '),
                 allow_reference_step=allow_reference_step,
-                context=context,
+                facts=facts,
                 similarity_threshold=similarity_threshold,
                 allowed_additional_proof_steps=allowed_additional_proof_steps,
                 zero_one=zero_one,
@@ -207,7 +207,7 @@ def compute_proof_accuracy(proof_gold_text: str,
 def _compute_proof_score(proof_gold_text: str,
                          proof_pred_text: str,
                          allow_reference_step=False,
-                         context: Optional[str] = None,
+                         facts: Optional[str] = None,
                          similarity_threshold=True,
                          allowed_additional_proof_steps=0,
                          zero_one: bool = True) -> float:
@@ -224,7 +224,7 @@ def _compute_proof_score(proof_gold_text: str,
     ) = _get_aligned_proof_by_uids(proof_gold_text,
                                    proof_pred_text,
                                    allow_reference_step=allow_reference_step,
-                                   context=context)
+                                   facts=facts)
 
     logger.debug('=========== gold_premise_uids_to_concl_uid ==============')
     logger.debug('\n' + pformat(gold_premise_uids_to_concl_uid))
@@ -288,7 +288,7 @@ def _to_uid(id_: str) -> str:
 def _get_aligned_proof_by_uids(proof_gold_text: str,
                                proof_pred_text: str,
                                allow_reference_step=False,
-                               context: Optional[str] = None)\
+                               facts: Optional[str] = None)\
         -> Tuple[Dict[Tuple[str], str], Dict[Tuple[str], str], Dict[Tuple[str], str], Dict[Tuple[str], str]]:
     logger.debug('\n\n=================================== _get_aligned_proof_by_uids() ============================================')
 
@@ -298,10 +298,10 @@ def _get_aligned_proof_by_uids(proof_gold_text: str,
     if allow_reference_step:
         # truncate reference steps which is something like "fact4 (hoge) -> int1: hoge"
 
-        if context is None:
-            raise ValueError('can not judge reference step because the context is not specified')
-        context_sents = extract_context(context)
-        context_sents = {id_: sent for id_, sent in context_sents.items()}
+        if facts is None:
+            raise ValueError('can not judge reference step because the facts is not specified')
+        facts_sents = extract_facts(facts)
+        facts_sents = {id_: sent for id_, sent in facts_sents.items()}
 
         def is_reference(gold_sent: str, pred_sent: str) -> bool:
             # LLMs generates reference sentences slightly different from the original one.
@@ -315,8 +315,8 @@ def _get_aligned_proof_by_uids(proof_gold_text: str,
             concl_sent = pred_premise_ids_to_concl_sent[premise_ids]
             if len(premise_ids) == 1:
                 premise_id = premise_ids[0]
-                if premise_id.startswith(FACT_IDENT) and premise_id in context_sents:
-                    premise_sent = context_sents[premise_id]
+                if premise_id.startswith(FACT_IDENT) and premise_id in facts_sents:
+                    premise_sent = facts_sents[premise_id]
                     if is_reference(premise_sent, concl_sent):
                         reference_sent_id_to_int_id[premise_id] = concl_id
                         reference_int_id_to_sent_id[concl_id] = premise_id
@@ -579,11 +579,11 @@ def build_metrics(type_: str) -> Callable[[List[str], str], Dict[str, float]]:
     if type_ == 'strict':
         def calc(gold_proofs: List[str],
                  pred_proof: str,
-                 context: Optional[str] = None) -> Dict[str, float]:
+                 facts: Optional[str] = None) -> Dict[str, float]:
             return compute_metrics(
                 gold_proofs,
                 pred_proof,
-                context=context,
+                facts=facts,
                 similarity_threshold=False,
                 allowed_additional_proof_steps=0,
                 allow_any_proof_for_unknown=False,
@@ -591,11 +591,11 @@ def build_metrics(type_: str) -> Callable[[List[str], str], Dict[str, float]]:
     elif type_ == 'allow_extra_steps':
         def calc(gold_proofs: List[str],
                  pred_proof: str,
-                 context: Optional[str] = None) -> Dict[str, float]:
+                 facts: Optional[str] = None) -> Dict[str, float]:
             return compute_metrics(
                 gold_proofs,
                 pred_proof,
-                context=context,
+                facts=facts,
                 similarity_threshold=False,
                 allowed_additional_proof_steps=5,
                 allow_any_proof_for_unknown=True,
