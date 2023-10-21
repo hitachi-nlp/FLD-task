@@ -21,7 +21,7 @@ from FLD_task.proof.utils import (
     extract_idents,
     extract_facts,
     extract_assumptions,
-    extract_commonsenses,
+    extract_knowledges,
     HYPOTHESIS_IDENT,
     VOID_IDENT,
     INT_IDENT,
@@ -391,7 +391,7 @@ def _get_aligned_proof_by_uids(proof_gold_text: str,
     pred_id_to_uid: Dict[str, str] = {}
 
     for ident in extract_idents(proof_gold_text):
-        if get_node_type(ident) in [NodeType.sent, NodeType.int, NodeType.assump, NodeType.assump_deletion, NodeType.commonsense]:
+        if get_node_type(ident) in [NodeType.sent, NodeType.int, NodeType.assump, NodeType.assump_deletion, NodeType.knowledge]:
             gold_id_to_uid[ident] = ident.upper()
 
     for ident in extract_idents(proof_pred_text):
@@ -400,8 +400,8 @@ def _get_aligned_proof_by_uids(proof_gold_text: str,
 
     gold_id_to_uid.update(_make_injected_sentences_mapping(proof_gold_text, proof_pred_text, 'assumption')[0])
     pred_id_to_uid.update(_make_injected_sentences_mapping(proof_gold_text, proof_pred_text, 'assumption')[1])
-    gold_id_to_uid.update(_make_injected_sentences_mapping(proof_gold_text, proof_pred_text, 'commonsense')[0])
-    pred_id_to_uid.update(_make_injected_sentences_mapping(proof_gold_text, proof_pred_text, 'commonsense')[1])
+    gold_id_to_uid.update(_make_injected_sentences_mapping(proof_gold_text, proof_pred_text, 'knowledge')[0])
+    pred_id_to_uid.update(_make_injected_sentences_mapping(proof_gold_text, proof_pred_text, 'knowledge')[1])
 
     gold_premise_uids_to_concl_uid: Dict[Tuple[str], str] = deepcopy(gold_premise_ids_to_concl_id)
     pred_premise_uids_to_concl_uid: Dict[Tuple[str], str] = deepcopy(pred_premise_ids_to_concl_id)
@@ -523,9 +523,9 @@ def _make_injected_sentences_mapping(proof_gold_text: str,
     if type_ == 'assumption':
         gold_injections = extract_assumptions(proof_gold_text)
         pred_injections = extract_assumptions(proof_pred_text)
-    elif type_ == 'commonsense':
-        gold_injections = extract_commonsenses(proof_gold_text)
-        pred_injections = extract_commonsenses(proof_pred_text)
+    elif type_ == 'knowledge':
+        gold_injections = extract_knowledges(proof_gold_text)
+        pred_injections = extract_knowledges(proof_pred_text)
     else:
         raise ValueError()
 

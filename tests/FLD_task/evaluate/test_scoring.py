@@ -266,7 +266,7 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
-            'void -> commonsense1: hoge',
+            'void -> knowledge1: hoge',
 
             'int2 & int4 -> hypothesis',
         ]),
@@ -277,7 +277,7 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
-            'void -> commonsense1: hoge',
+            'void -> knowledge1: hoge',
 
             'int2 & int4 -> hypothesis',
 
@@ -324,8 +324,8 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
-            'void -> commonsense1: hoge',
-            '[commonsense1] & fact7 -> int5: hoge',
+            'void -> knowledge1: hoge',
+            '[knowledge1] & fact7 -> int5: hoge',
 
             'int2 & int4 -> hypothesis',
         ]),
@@ -336,8 +336,8 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
-            'void -> commonsense1: hoge',
-            '[commonsense1] & fact7 -> int5: hoge',
+            'void -> knowledge1: hoge',
+            '[knowledge1] & fact7 -> int5: hoge',
 
             'int2 & int4 -> hypothesis',
 
@@ -390,11 +390,11 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
-            'void -> commonsense1: hoge',
-            '[commonsense1] & fact7 -> int5: hoge',
+            'void -> knowledge1: hoge',
+            '[knowledge1] & fact7 -> int5: hoge',
 
-            'void -> commonsense2: fuga',
-            '[commonsense2] & fact8 -> int6: fuga',
+            'void -> knowledge2: fuga',
+            '[knowledge2] & fact8 -> int6: fuga',
 
             'int2 & int4 -> hypothesis',
         ]),
@@ -405,11 +405,11 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
-            'void -> commonsense1: hoge',
-            '[commonsense1] & fact7 -> int5: hoge',
+            'void -> knowledge1: hoge',
+            '[knowledge1] & fact7 -> int5: hoge',
 
-            'void -> commonsense2: fuga',
-            '[commonsense2] & fact8 -> int5: fuga',
+            'void -> knowledge2: fuga',
+            '[knowledge2] & fact8 -> int5: fuga',
 
             'int2 & int4 -> hypothesis',
 
@@ -462,11 +462,11 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
-            'void -> commonsense1: hoge',
-            '[commonsense1] & fact7 -> int5: hoge',
+            'void -> knowledge1: hoge',
+            '[knowledge1] & fact7 -> int5: hoge',
 
-            'void -> commonsense2: fuga',
-            '[commonsense2] & fact8 -> int6: fuga',
+            'void -> knowledge2: fuga',
+            '[knowledge2] & fact8 -> int6: fuga',
 
             'int2 & int4 -> hypothesis',
         ]),
@@ -477,11 +477,11 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
-            'void -> commonsense2: hoge',
-            '[commonsense2] & fact7 -> int5: hoge',
+            'void -> knowledge2: hoge',
+            '[knowledge2] & fact7 -> int5: hoge',
 
-            'void -> commonsense1: fuga',
-            '[commonsense1] & fact8 -> int6: fuga',
+            'void -> knowledge1: fuga',
+            '[knowledge1] & fact8 -> int6: fuga',
 
             'int2 & int4 -> hypothesis',
 
@@ -534,11 +534,11 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
-            'void -> commonsense1: hoge',
-            '[commonsense1] & fact7 -> int5: hoge',
+            'void -> knowledge1: hoge',
+            '[knowledge1] & fact7 -> int5: hoge',
 
-            'void -> commonsense2: fuga',
-            '[commonsense2] & fact8 -> int6: fuga',
+            'void -> knowledge2: fuga',
+            '[knowledge2] & fact8 -> int6: fuga',
 
             'int2 & int4 -> hypothesis',
         ]),
@@ -549,11 +549,11 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
-            'void -> commonsense1: hoge',
-            '[commonsense1] & fact8 -> int6: fuga',
+            'void -> knowledge1: hoge',
+            '[knowledge1] & fact8 -> int6: fuga',
 
-            'void -> commonsense2: fuga',
-            '[commonsense2] & fact7 -> int5: hoge',
+            'void -> knowledge2: fuga',
+            '[knowledge2] & fact7 -> int5: hoge',
 
             'int2 & int4 -> hypothesis',
 
@@ -606,11 +606,11 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
-            'void -> commonsense1: hoge',
-            '[commonsense1] & fact7 -> int5: hoge',
+            'void -> knowledge1: hoge',
+            '[knowledge1] & fact7 -> int5: hoge',
 
-            'void -> commonsense2: fuga',
-            '[commonsense2] & fact8 -> int6: fuga',
+            'void -> knowledge2: fuga',
+            '[knowledge2] & fact8 -> int6: fuga',
 
             'int2 & int4 -> hypothesis',
         ]),
@@ -621,11 +621,11 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
-            'void -> commonsense1: hoge',
-            '[commonsense1] & fact8 -> int6: fuga',
+            'void -> knowledge1: hoge',
+            '[knowledge1] & fact8 -> int6: fuga',
 
-            'void -> commonsense2: fuga',
-            '[commonsense2] & fact7 -> int5: hoge',
+            'void -> knowledge2: fuga',
+            '[knowledge2] & fact7 -> int5: hoge',
 
             'int2 & int4 -> hypothesis',
 
