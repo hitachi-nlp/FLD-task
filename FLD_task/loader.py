@@ -77,6 +77,9 @@ def load_deduction(dic: dict, force_version: str = None) -> Deduction:
         else:
             raise Exception()
 
+    elif version in ['0.3']:
+        pass
+
     elif version in ['DeductionInstance', 'DeductionExampleInstance']:
         pass
 
@@ -93,4 +96,6 @@ def load_deduction(dic: dict, force_version: str = None) -> Deduction:
     #     if key not in Deduction.schema()['properties']:
     #         raise Exception(f'key={key} not allowed for Deduction object')
 
-    return Deduction.parse_obj(init_kwargs)
+    deduction = Deduction.parse_obj(init_kwargs)
+    return deduction
+
