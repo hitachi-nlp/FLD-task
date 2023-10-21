@@ -14,6 +14,7 @@ VOID_IDENT = 'void'
 INT_IDENT = 'int'
 HYPOTHESIS_IDENT = 'hypothesis'
 ASSUMP_IDENT = 'assump'
+COMMONSENSE_IDENT = 'commonsense'
 
 
 class InvalidProof(Exception):
@@ -93,8 +94,12 @@ def prettify_facts_text(facts_text: str, indent: int = 0) -> str:
 class NodeType(Enum):
     sent = 'sentence'
     int = 'internal'
+
     assump = 'assumption'
     assump_deletion = 'assumption_deletion'
+
+    commonsense = 'commonsense'
+
     void = 'void'
     hypothesis = 'hypothesis'
 
@@ -108,6 +113,8 @@ def get_node_type(rep: str) -> Optional[NodeType]:
         return NodeType.assump
     elif rep.strip().startswith('[assump'):
         return NodeType.assump_deletion
+    elif rep.strip().startswith('commonsense'):
+        return NodeType.commonsense
     elif rep.strip().startswith('void'):
         return NodeType.void
     elif rep.strip().startswith(HYPOTHESIS_IDENT):
@@ -118,9 +125,9 @@ def get_node_type(rep: str) -> Optional[NodeType]:
 
 def extract_ident(rep: str, allow_sentence=False) -> Optional[str]:
     if allow_sentence:
-        m = re.match("(?P<ident>({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|{HYPOTHESIS_IDENT}[; ]))", rep)
+        m = re.match("(?P<ident>({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|commonsense\d+[: ]|void[: ]|{HYPOTHESIS_IDENT}[; ]))", rep)
     else:
-        m = re.fullmatch("(?P<ident>({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|{HYPOTHESIS_IDENT}[; ]))", rep)
+        m = re.fullmatch("(?P<ident>({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|commonsense\d+[: ]|void[: ]|{HYPOTHESIS_IDENT}[; ]))", rep)
     if m is None:
         return None
     return m["ident"][:-1]
@@ -128,7 +135,7 @@ def extract_ident(rep: str, allow_sentence=False) -> Optional[str]:
 
 def extract_idents(rep: str) -> List[str]:
     idents = []
-    for ident in re.findall(f'({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|void[: ]|{HYPOTHESIS_IDENT}[; ])', rep):
+    for ident in re.findall(f'({FACT_IDENT}\d+[: ]|int\d+[: ]|assump\d+[: ]|\[assump\d+\][: ]|commonsense\d+[: ]|void[: ]|{HYPOTHESIS_IDENT}[; ])', rep):
         idents.append(ident[:-1])
     return idents
 
@@ -146,7 +153,7 @@ def extract_ident_sent(rep: str) -> Optional[Tuple[str, str]]:
 def extract_ident_sents(rep: str) -> Dict[str, str]:
     ident_sents: Dict[str, str] = {}
 
-    ident_matches = [m for m in re.finditer(f"({FACT_IDENT}\d*: |int\d*: |assump\d*: )", rep)]
+    ident_matches = [m for m in re.finditer(f"({FACT_IDENT}\d*: |int\d*: |assump\d*: |commonsense\d*: )", rep)]
     is_proof_rep = rep.find(' -> ') >= 0
 
     for i_match, match in enumerate(ident_matches):
@@ -191,7 +198,7 @@ def get_lowest_vacant_int_id(text: str) -> Optional[int]:
 
 
 def is_valid_premise(rep: str) -> bool:
-    return re.fullmatch(f"({FACT_IDENT}\d+|int\d+|assump\d+|\[assump\d+\]|void)", rep)
+    return re.fullmatch(f"({FACT_IDENT}\d+|int\d+|assump\d+|\[assump\d+\]|commonsense\d+|void)", rep)
 
 
 def normalize(text: str) -> str:
@@ -242,6 +249,21 @@ def extract_assumptions(proof_text: str, no_lower=True) -> OrderedDict[str, str]
     return assumptions
 
 
+def extract_commonsenses(proof_text: str, no_lower=True) -> OrderedDict[str, str]:
+    commonsenses = OrderedDict()
+    for m_begin in re.finditer(r'-> *commonsense\d+', proof_text):
+        begin = m_begin.span()[0]
+        commonsense_text = re.sub(r' *-> *', '', proof_text[begin:].split(';')[0])
+        try:
+            ident, sent = re.split(r':  *', commonsense_text)
+        except Exception as e:
+            logger.warning('failed: commonsense_text="%s"', commonsense_text)
+            raise e
+        commonsenses[ident.strip()] = normalize_sentence(sent, no_lower=no_lower)
+    return commonsenses
+
+
+
 def rename_idents(proof: str, assert_on_duplicated_ident=True) -> str:
     """
     Rename the `int\d+` and `assump\d+` identifiers in a proof so that they increase from 1.
@@ -249,6 +271,7 @@ def rename_idents(proof: str, assert_on_duplicated_ident=True) -> str:
     renamed_proof = proof
     renamed_proof = _rename_idents(renamed_proof, 'int', assert_on_duplicated_ident=assert_on_duplicated_ident)
     renamed_proof = _rename_idents(renamed_proof, 'assump', assert_on_duplicated_ident=assert_on_duplicated_ident)
+    renamed_proof = _rename_idents(renamed_proof, 'commonsense', assert_on_duplicated_ident=assert_on_duplicated_ident)
     return renamed_proof
 
 

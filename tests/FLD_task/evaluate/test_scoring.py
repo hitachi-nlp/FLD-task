@@ -266,6 +266,34 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
+            'void -> commonsense1: hoge',
+
+            'int2 & int4 -> hypothesis',
+        ]),
+
+        '; '.join([
+            'fact1 & fact5 -> int1: this is a sentence A',
+            'fact2 & fact6 -> int3: this is a sentence B',
+            'int1 -> int2: this is a sentence C',
+            'int3 -> int4: this is a sentence D',
+
+            'void -> commonsense1: hoge',
+
+            'int2 & int4 -> hypothesis',
+
+        ]),
+
+        zero_one=True,
+    )
+    assert (math.isclose(score, 1.0))
+
+    score = _calc_score(
+        '; '.join([
+            'fact1 & fact5 -> int1: this is a sentence A',
+            'fact2 & fact6 -> int3: this is a sentence B',
+            'int1 -> int2: this is a sentence C',
+            'int3 -> int4: this is a sentence D',
+
             'void -> assump1: hoge',
             '[assump1] & fact7 -> int5: hoge',
 
@@ -280,6 +308,36 @@ def test_calc_score_on_toy_examples():
 
             'void -> assump1: hoge',
             '[assump1] & fact7 -> int5: hoge',
+
+            'int2 & int4 -> hypothesis',
+
+        ]),
+
+        zero_one=True,
+    )
+    assert (math.isclose(score, 1.0))
+
+    score = _calc_score(
+        '; '.join([
+            'fact1 & fact5 -> int1: this is a sentence A',
+            'fact2 & fact6 -> int3: this is a sentence B',
+            'int1 -> int2: this is a sentence C',
+            'int3 -> int4: this is a sentence D',
+
+            'void -> commonsense1: hoge',
+            '[commonsense1] & fact7 -> int5: hoge',
+
+            'int2 & int4 -> hypothesis',
+        ]),
+
+        '; '.join([
+            'fact1 & fact5 -> int1: this is a sentence A',
+            'fact2 & fact6 -> int3: this is a sentence B',
+            'int1 -> int2: this is a sentence C',
+            'int3 -> int4: this is a sentence D',
+
+            'void -> commonsense1: hoge',
+            '[commonsense1] & fact7 -> int5: hoge',
 
             'int2 & int4 -> hypothesis',
 
@@ -332,6 +390,42 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
+            'void -> commonsense1: hoge',
+            '[commonsense1] & fact7 -> int5: hoge',
+
+            'void -> commonsense2: fuga',
+            '[commonsense2] & fact8 -> int6: fuga',
+
+            'int2 & int4 -> hypothesis',
+        ]),
+
+        '; '.join([
+            'fact1 & fact5 -> int1: this is a sentence A',
+            'fact2 & fact6 -> int3: this is a sentence B',
+            'int1 -> int2: this is a sentence C',
+            'int3 -> int4: this is a sentence D',
+
+            'void -> commonsense1: hoge',
+            '[commonsense1] & fact7 -> int5: hoge',
+
+            'void -> commonsense2: fuga',
+            '[commonsense2] & fact8 -> int5: fuga',
+
+            'int2 & int4 -> hypothesis',
+
+        ]),
+
+        zero_one=True,
+    )
+    assert (math.isclose(score, 1.0))
+
+    score = _calc_score(
+        '; '.join([
+            'fact1 & fact5 -> int1: this is a sentence A',
+            'fact2 & fact6 -> int3: this is a sentence B',
+            'int1 -> int2: this is a sentence C',
+            'int3 -> int4: this is a sentence D',
+
             'void -> assump1: hoge',
             '[assump1] & fact7 -> int5: hoge',
 
@@ -352,6 +446,42 @@ def test_calc_score_on_toy_examples():
 
             'void -> assump1: fuga',
             '[assump1] & fact8 -> int6: fuga',
+
+            'int2 & int4 -> hypothesis',
+
+        ]),
+
+        zero_one=True,
+    )
+    assert (math.isclose(score, 1.0))
+
+    score = _calc_score(
+        '; '.join([
+            'fact1 & fact5 -> int1: this is a sentence A',
+            'fact2 & fact6 -> int3: this is a sentence B',
+            'int1 -> int2: this is a sentence C',
+            'int3 -> int4: this is a sentence D',
+
+            'void -> commonsense1: hoge',
+            '[commonsense1] & fact7 -> int5: hoge',
+
+            'void -> commonsense2: fuga',
+            '[commonsense2] & fact8 -> int6: fuga',
+
+            'int2 & int4 -> hypothesis',
+        ]),
+
+        '; '.join([
+            'fact1 & fact5 -> int1: this is a sentence A',
+            'fact2 & fact6 -> int3: this is a sentence B',
+            'int1 -> int2: this is a sentence C',
+            'int3 -> int4: this is a sentence D',
+
+            'void -> commonsense2: hoge',
+            '[commonsense2] & fact7 -> int5: hoge',
+
+            'void -> commonsense1: fuga',
+            '[commonsense1] & fact8 -> int6: fuga',
 
             'int2 & int4 -> hypothesis',
 
@@ -404,6 +534,42 @@ def test_calc_score_on_toy_examples():
             'int1 -> int2: this is a sentence C',
             'int3 -> int4: this is a sentence D',
 
+            'void -> commonsense1: hoge',
+            '[commonsense1] & fact7 -> int5: hoge',
+
+            'void -> commonsense2: fuga',
+            '[commonsense2] & fact8 -> int6: fuga',
+
+            'int2 & int4 -> hypothesis',
+        ]),
+
+        '; '.join([
+            'fact1 & fact5 -> int1: this is a sentence A',
+            'fact2 & fact6 -> int3: this is a sentence B',
+            'int1 -> int2: this is a sentence C',
+            'int3 -> int4: this is a sentence D',
+
+            'void -> commonsense1: hoge',
+            '[commonsense1] & fact8 -> int6: fuga',
+
+            'void -> commonsense2: fuga',
+            '[commonsense2] & fact7 -> int5: hoge',
+
+            'int2 & int4 -> hypothesis',
+
+        ]),
+
+        zero_one=True,
+    )
+    assert (math.isclose(score, 0.0))
+
+    score = _calc_score(
+        '; '.join([
+            'fact1 & fact5 -> int1: this is a sentence A',
+            'fact2 & fact6 -> int3: this is a sentence B',
+            'int1 -> int2: this is a sentence C',
+            'int3 -> int4: this is a sentence D',
+
             'void -> assump1: hoge',
             '[assump1] & fact7 -> int5: hoge',
 
@@ -424,6 +590,42 @@ def test_calc_score_on_toy_examples():
 
             'void -> assump2: fuga',
             '[assump2] & fact7 -> int5: hoge',
+
+            'int2 & int4 -> hypothesis',
+
+        ]),
+
+        zero_one=False,
+    )
+    assert (math.isclose(score, _F_score(9, 7, 2)[-1]))
+
+    score = _calc_score(
+        '; '.join([
+            'fact1 & fact5 -> int1: this is a sentence A',
+            'fact2 & fact6 -> int3: this is a sentence B',
+            'int1 -> int2: this is a sentence C',
+            'int3 -> int4: this is a sentence D',
+
+            'void -> commonsense1: hoge',
+            '[commonsense1] & fact7 -> int5: hoge',
+
+            'void -> commonsense2: fuga',
+            '[commonsense2] & fact8 -> int6: fuga',
+
+            'int2 & int4 -> hypothesis',
+        ]),
+
+        '; '.join([
+            'fact1 & fact5 -> int1: this is a sentence A',
+            'fact2 & fact6 -> int3: this is a sentence B',
+            'int1 -> int2: this is a sentence C',
+            'int3 -> int4: this is a sentence D',
+
+            'void -> commonsense1: hoge',
+            '[commonsense1] & fact8 -> int6: fuga',
+
+            'void -> commonsense2: fuga',
+            '[commonsense2] & fact7 -> int5: hoge',
 
             'int2 & int4 -> hypothesis',
 

@@ -21,6 +21,7 @@ from FLD_task.proof.utils import (
     extract_idents,
     extract_facts,
     extract_assumptions,
+    extract_commonsenses,
     HYPOTHESIS_IDENT,
     VOID_IDENT,
     INT_IDENT,
@@ -390,15 +391,17 @@ def _get_aligned_proof_by_uids(proof_gold_text: str,
     pred_id_to_uid: Dict[str, str] = {}
 
     for ident in extract_idents(proof_gold_text):
-        if get_node_type(ident) in [NodeType.sent, NodeType.int, NodeType.assump, NodeType.assump_deletion]:
+        if get_node_type(ident) in [NodeType.sent, NodeType.int, NodeType.assump, NodeType.assump_deletion, NodeType.commonsense]:
             gold_id_to_uid[ident] = ident.upper()
 
     for ident in extract_idents(proof_pred_text):
         if get_node_type(ident) in [NodeType.sent]:
             pred_id_to_uid[ident] = ident.upper()
 
-    gold_id_to_uid.update(_make_assumption_mapping(proof_gold_text, proof_pred_text)[0])
-    pred_id_to_uid.update(_make_assumption_mapping(proof_gold_text, proof_pred_text)[1])
+    gold_id_to_uid.update(_make_injected_sentences_mapping(proof_gold_text, proof_pred_text, 'assumption')[0])
+    pred_id_to_uid.update(_make_injected_sentences_mapping(proof_gold_text, proof_pred_text, 'assumption')[1])
+    gold_id_to_uid.update(_make_injected_sentences_mapping(proof_gold_text, proof_pred_text, 'commonsense')[0])
+    pred_id_to_uid.update(_make_injected_sentences_mapping(proof_gold_text, proof_pred_text, 'commonsense')[1])
 
     gold_premise_uids_to_concl_uid: Dict[Tuple[str], str] = deepcopy(gold_premise_ids_to_concl_id)
     pred_premise_uids_to_concl_uid: Dict[Tuple[str], str] = deepcopy(pred_premise_ids_to_concl_id)
@@ -514,21 +517,28 @@ def _split_steps_into_id_dics(proof: str) -> Tuple[Dict[Tuple[str, str], str], D
     return premise_ids_to_concl_id, premise_ids_to_concl_sent
 
 
-def _make_assumption_mapping(proof_gold_text: str,
-                             proof_pred_text: str) -> Tuple[Dict[str, str], Dict[str, str]]:
-    gold_assumptions = extract_assumptions(proof_gold_text)
-    pred_assumptions = extract_assumptions(proof_pred_text)
+def _make_injected_sentences_mapping(proof_gold_text: str,
+                                     proof_pred_text: str,
+                                     type_: str) -> Tuple[Dict[str, str], Dict[str, str]]:
+    if type_ == 'assumption':
+        gold_injections = extract_assumptions(proof_gold_text)
+        pred_injections = extract_assumptions(proof_pred_text)
+    elif type_ == 'commonsense':
+        gold_injections = extract_commonsenses(proof_gold_text)
+        pred_injections = extract_commonsenses(proof_pred_text)
+    else:
+        raise ValueError()
 
     gold_id_to_uid: Dict[str, str] = {}
     pred_id_to_uid: Dict[str, str] = {}
 
     consumed_pred_ids = set()
-    for gold_idx, (gold_id, gold_sentence) in enumerate(gold_assumptions.items()):
+    for gold_idx, (gold_id, gold_sentence) in enumerate(gold_injections.items()):
         max_similarity = - float('inf')
         max_pred_id = None
         max_pred_idx = None
 
-        for pred_void_idx, (pred_id, pred_sentence) in enumerate(pred_assumptions.items()):
+        for pred_void_idx, (pred_id, pred_sentence) in enumerate(pred_injections.items()):
             if pred_id in consumed_pred_ids:
                 continue
 
