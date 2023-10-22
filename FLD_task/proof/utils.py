@@ -60,8 +60,8 @@ def prettify_proof_text(proof_text: str, indent=0) -> str:
         premises = premises_text.split(' & ')
         pretty_premise_texts = []
         for premise_text in sorted(premises):
-            pretty_premise_texts.append(f'{premise_text:>8}')
-        pretty_premises_text = ''.join(pretty_premise_texts)
+            pretty_premise_texts.append(f'{premise_text:>11}')
+        pretty_premises_text = '  '.join(pretty_premise_texts)
 
         if concl_text.find(': ') >= 0:
             concl_fields = concl_text.split(': ')
@@ -74,7 +74,7 @@ def prettify_proof_text(proof_text: str, indent=0) -> str:
             pretty_concl_text = f'{concl_text:>10}'
 
         # pretty_line = ' ' * indent_level + f'{pretty_premises_text:<25} ->     {pretty_concl_text}'
-        pretty_line = f'{pretty_premises_text:<25} ->     {pretty_concl_text}'
+        pretty_line = f'{pretty_premises_text:<33} ->     {pretty_concl_text}'
         pretty_lines.append(pretty_line)
 
     stance_markers_text = f'=>    stance markers = {str([mk.value for mk in stance_markers])}'
@@ -85,7 +85,7 @@ def prettify_proof_text(proof_text: str, indent=0) -> str:
 
 
 def prettify_facts_text(facts_text: str, indent: int = 0) -> str:
-    sentences = re.sub(FACT_IDENT + '([0-9]+)', f'\n{FACT_IDENT}\g<1>', facts_text).strip('\n').split('\n')
+    sentences = re.sub(FACT_IDENT + '([0-9]+)', f'HOGE{FACT_IDENT}\g<1>', facts_text.replace('\n', '')).lstrip('HOGE').split('HOGE')
     sentences = sorted(sentences, key = lambda sentence: int(re.sub(f'^{FACT_IDENT}([0-9]+).*', r'\g<1>', sentence)))
     pretty = ' ' * indent + ('\n' + ' ' * indent).join(sentences)
     return pretty
