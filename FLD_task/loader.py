@@ -1,10 +1,13 @@
 import re
+from copy import copy
+
 from typing import Union, Optional, Callable, Any
 from FLD_task.schema import Deduction
 from FLD_task.proof.utils import FACT_IDENT, FACTS_IDENT
 
 
 def load_deduction(dic: dict, force_version: str = None) -> Deduction:
+    dic = copy(dic)
     if force_version is not None:
         version = force_version
     else:
