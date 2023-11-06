@@ -9,10 +9,6 @@ def load_deduction(dic: dict, force_version: str = None) -> Deduction:
         version = force_version
     else:
         version = dic.get('version', None)
-        version = version or dic.get('__version__', None)  # back compatibility
-        version = version or force_version
-        # if force_version is not None and force_version != version:
-        #     raise ValueError(f'the forced version {force_version} does not match the found version {version}')
         version = version or '0.0'
 
     def map_to_new_field(old_name: str,

@@ -4,7 +4,7 @@ import json
 
 import click
 from datasets import load_dataset
-from FLD_task import load_deduction, serialize
+from FLD_task import serialize, load_deduction
 
 
 @click.command()
@@ -36,14 +36,24 @@ def main(train,
         tmp_path = tempfile.mktemp()
         with open(tmp_path, 'w') as f_out:
             for line in open(path):
-                example = load_deduction(json.loads(line.rstrip('\n')))
-                serial = serialize(example, stepwise=False, include_max_subproof_for_unknown=False)
+                # XXX: we DO NOT load example as a deduction.
+                # Otherwise, the dataset will depend on the version of FLD_task library, in addition to the FLD_generator library,
+                # which is too complicated.
+                # example = load_deduction(json.loads(line.rstrip('\n')))
+                example = json.loads(line.rstrip('\n'))
+
+                # This serial DOES depend on FLD_task library, but may not that problematic,
+                # as serialization algorithm does not change often.
+                serial = serialize(
+                    load_deduction(example),
+                    stepwise=False,
+                    include_max_subproof_for_unknown=False,
+                )
+
                 if not no_serial:
-                    example.prompt_serial = serial.prompt
-                    example.proof_serial = serial.proof
-                if serial.proof != serial.next_proof_step: 
-                    raise Exception()
-                f_out.write(json.dumps(example.dict()))
+                    example['prompt_serial'] = serial.prompt
+                    example['proof_serial'] = serial.proof
+                f_out.write(json.dumps(example))
         processed_split_paths[split] = tmp_path
 
     datasets = load_dataset(
