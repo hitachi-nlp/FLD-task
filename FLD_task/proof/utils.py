@@ -26,7 +26,9 @@ class InvalidProofStep(Exception):
 
 
 def normalize_proof(proof_text: str) -> str:
-    proof_text = re.sub('\n+', ' ', proof_text)
+    # proof_text = re.sub('\n+', ' ', proof_text)
+    proof_text = re.sub('\n+', ';', proof_text)
+    proof_text = re.sub(';+', ';', proof_text)
     proof_text = re.sub(r'\s+', ' ', proof_text)
     proof_text = re.sub(r'\s+$', '', re.sub(r'^\s+', '', proof_text))
     return proof_text
