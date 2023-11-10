@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# XXX!!! Before pushing to hub, be sure to checkout the version that match the remote repo,
+# XXX README!!! Before pushing to hub, be sure to checkout the version that match the remote repo,
 # as the push script add some features to the dataset.
 
 # -- FLD.v2 --
