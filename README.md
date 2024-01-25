@@ -5,7 +5,7 @@ See [the entry-point repository](https://github.com/hitachi-nlp/FLD.git) about t
 
 ## Releases
 We have currently two branches:
-* (2024-01-24) `NLP_2024_KOBE_BEEF` branch
-* (2023-08-22) `main` branch.
+* **`NLP_2024_KOBE_BEEF`** branch (2024-01-24) 
+* **`main`** branch (2023-08-22)
 
-Please read the instructions of other repositories carefully to identify which branch is required.
+Please carefully read the instructions in other repositories to determine which branch is required.
